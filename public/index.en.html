@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns#">
 
 <head>
   <meta charset="utf-8">
+  <meta property="og:title" content="Assistant Developer Community Japan" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="This community provides the place where developers can discuss about Google Assistant and Actions for the Google Assistant and can get information about them." />
+  <meta property="og:url" content="https://aogdevs.jp/index.en.html" />
+  <meta property="og:image" content="https://aogdevs.jp/images/logomark-256x256.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/favicon.ico">
   <link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico">
@@ -26,7 +31,7 @@
     </ul>
   </nav>
 
-  <main role="main">
+  <main role="main" itemscope itemtype="http://schema.org/WebSite">
     <div class="container container-fluid">
 
       <div class="card mb-3">
@@ -34,7 +39,7 @@
         <div class="card-body">
           <h5 class="card-title">
             <img src="images/logomark-256x256.png" width="48" height="48">
-            Assistant Developer Community Japan
+            <span itemprop="name">Assistant Developer Community Japan</span>
           </h5>
           <p class="card-text">Welcome to this developer community for Google Assistant!</p>
         </div>
@@ -42,7 +47,7 @@
 
       <div class="card">
         <div class="card-body">
-          <p class="card-text">This community provides the place where developers can discuss about Google Assistant and Actions for the Google Assistant and can get information about them.</p>
+          <p class="card-text" itemprop="description">This community provides the place where developers can discuss about Google Assistant and Actions for the Google Assistant and can get information about them.</p>
           <p class="card-text">The hashtag is <b><a href="https://twitter.com/search?q=%23AoGDevsJa">#AoGDevsJa</a></b>.</p>
         </div>
       </div>
@@ -98,7 +103,7 @@
         <div class="card-body">
           <ul class="list-unstyled">
             <li class="media">
-              <img src="images/logomark.png" class="mr-3" width="64" height="64">
+              <img src="images/logomark.png" class="mr-3" width="64" height="64" itemprop="image">
               <div class="media-body">
                 <h5 class="mt-0 mb-1">Color (PNG)</h5>
                 <a href="images/logomark.png" download="aogdevsja-color.png">Download</a>
