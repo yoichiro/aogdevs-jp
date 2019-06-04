@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 
-<html lang="ja">
+<html lang="ja" prefix="og: http://ogp.me/ns#">
 
 <head>
   <meta charset="utf-8">
+  <meta property="og:title" content="Assistant Developer Community Japan" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="Googleアシスタントやアシスタント向けアプリ開発に関する情報発信や、質疑応答など開発者向けのディスカッションを行います。" />
+  <meta property="og:url" content="https://aogdevs.jp/index.html" />
+  <meta property="og:image" content="https://aogdevs.jp/images/logomark-256x256.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/favicon.ico">
   <link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico">
@@ -26,7 +31,7 @@
     </ul>
   </nav>
 
-  <main role="main">
+  <main role="main" itemscope itemtype="http://schema.org/WebSite">
     <div class="container container-fluid">
 
       <div class="card mb-3">
@@ -34,7 +39,7 @@
         <div class="card-body">
           <h5 class="card-title">
             <img src="images/logomark-256x256.png" width="48" height="48">
-            Assistant Developer Community Japan
+            <span itemprop="name">Assistant Developer Community Japan</span>
           </h5>
           <p class="card-text">Googleアシスタント開発者コミュニティへようこそ！</p>
         </div>
@@ -42,7 +47,7 @@
 
       <div class="card">
         <div class="card-body">
-          <p class="card-text">Googleアシスタントやアシスタント向けアプリ開発に関する情報発信や、質疑応答など開発者向けのディスカッションを行います。</p>
+          <p class="card-text" itemprop="description">Googleアシスタントやアシスタント向けアプリ開発に関する情報発信や、質疑応答など開発者向けのディスカッションを行います。</p>
           <p class="card-text">ハッシュタグは、<b><a href="https://twitter.com/search?q=%23AoGDevsJa">#AoGDevsJa</a></b> です。</p>
         </div>
       </div>
@@ -98,7 +103,7 @@
         <div class="card-body">
           <ul class="list-unstyled">
             <li class="media">
-              <img src="images/logomark.png" class="mr-3" width="64" height="64">
+              <img src="images/logomark.png" class="mr-3" width="64" height="64" itemprop="image">
               <div class="media-body">
                 <h5 class="mt-0 mb-1">Color (PNG)</h5>
                 <a href="images/logomark.png" download="aogdevsja-color.png">Download</a>
