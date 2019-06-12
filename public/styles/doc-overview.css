@@ -75,4 +75,21 @@ div.item-content {
   cursor: default;
   padding-top: 20px;
   border: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+div.last-updated {
+  position: absolute;
+  bottom: 0;
+  right: 5px;
+  color: gray;
+  font-size: small;
+}
+
+div.last-updated-recent {
+  position: absolute;
+  bottom: 0;
+  right: 5px;
+  color: darksalmon;
+  font-size: small;
 }
