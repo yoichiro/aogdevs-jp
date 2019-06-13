@@ -257,7 +257,8 @@ const loadDataFromFirestore = (): Promise<Array<Header>> => {
 };
 
 export const fetchAogDocOverview = functions.https.onRequest(async (request, response) => {
-  const headers = await loadDataFromFirestore()
+  const headers = await loadDataFromFirestore();
+  response.set('Cache-Control', 'public, max-age=300, s-maxage=3600');
   response.status(200).json(headers);
 });
 
