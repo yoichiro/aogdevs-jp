@@ -16,6 +16,23 @@ class DocOVerview {
     return div;
   }
 
+  appendItemContentDivElement(parent, item) {
+    const itemLink = document.createElement('a');
+    itemLink.setAttribute('href', item.url);
+    itemLink.innerText = item.text;
+    const itemContent = this.appendDivElement(parent, 'item-content');
+    itemContent.appendChild(itemLink);
+    if (item.lastUpdated) {
+      const lastUpdated = document.createElement('div');
+      const date = moment(item.lastUpdated, 'YYYY-MM-DDTHH:mm:ss');
+      const baseDate = moment().subtract(1, 'months');
+      lastUpdated.setAttribute('class', date.isAfter(baseDate) ? 'last-updated-recent' : 'last-updated');
+      lastUpdated.innerText = date.format('MMM Do YYYY');
+      itemContent.appendChild(lastUpdated);
+    }
+    return itemContent;
+  }
+
   updateItems(headings) {
     return new Promise((resolve, reject) => {
       const columns = document.querySelector('#columns');
@@ -38,18 +55,10 @@ class DocOVerview {
             if (item.category) {
               this.appendDivElement(itemColumn, 'item-category', item.text);
               item.items.forEach(item => {
-                const itemLink = document.createElement('a');
-                itemLink.setAttribute('href', item.url);
-                itemLink.innerText = item.text;
-                const itemContent = this.appendDivElement(itemColumn, 'item-content');
-                itemContent.appendChild(itemLink);
+                this.appendItemContentDivElement(itemColumn, item);
               });
             } else {
-              const itemLink = document.createElement('a');
-              itemLink.setAttribute('href', item.url);
-              itemLink.innerText = item.text;
-              const itemContent = this.appendDivElement(itemColumn, 'item-content');
-              itemContent.appendChild(itemLink);
+              this.appendItemContentDivElement(itemColumn, item);
             }
           });
         });
