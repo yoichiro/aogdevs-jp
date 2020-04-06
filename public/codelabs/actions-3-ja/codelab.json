@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-790299-29",
+  "updated": "2018-10-05T10:56:28Z",
+  "id": "actions-3-ja",
+  "duration": 60,
+  "title": "Build Actions for the Google Assistant (Level 3)",
+  "authors": "yoichiro",
+  "summary": "This codelab covers intermediate and advanced-level concepts for developing with Actions on Google.",
+  "source": "1J6qOIADy-qV8LKE6AOjOJBBmdAMxGNK3aT8qR-G8jgk",
+  "theme": "assistant",
+  "status": [
+    "live"
+  ],
+  "category": [
+    "Assistant"
+  ],
+  "tags": [
+    "lang-ja",
+    "tag-assistant",
+    "web"
+  ],
+  "url": "actions-3-ja"
+}
