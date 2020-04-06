@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-790299-29",
+  "updated": "2020-04-06T07:37:59Z",
+  "id": "appactions_ja",
+  "duration": 52,
+  "title": "Extend an Android app to the Google Assistant with App Actions",
+  "authors": "yui, yoichiro",
+  "summary": "This codelab covers how to extend an Android app to the Google Assistant with App Actions.",
+  "source": "1rkILRXfVo6z5YQIeYqdpbCwzCcNrS3IEHjfcfTJSbqs",
+  "theme": "assistant",
+  "status": [
+    "live"
+  ],
+  "category": [
+    "Assistant"
+  ],
+  "tags": [
+    "lang-ja",
+    "tag-assistant",
+    "web"
+  ],
+  "url": "appactions_ja"
+}

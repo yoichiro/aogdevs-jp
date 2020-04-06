@@ -1,0 +1,396 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Extend an Android app to the Google Assistant with App Actions</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-790299-29"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="appactions_ja"
+                  title="Extend an Android app to the Google Assistant with App Actions"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Overview" duration="4">
+        <p>App Actionsは、ユーザーが<a href="https://assistant.google.com/" target="_blank">Googleアシスタント</a>から特定のアプリの機能を直接起動できるようにすることで、Androidアプリの範囲を拡大するのに役立ちます。App Actionsはアプリのディープリンクの上に構築され、ユーザーがすでに知っている使用したい機能にアクセスするためのより多くの方法を提供します。</p>
+<p>Android開発者は、<a href="https://developers.google.com/assistant/app/reference/built-in-intents" target="_blank">利用可能な組み込みインテント</a>の1つを実装して、ユーザーがより速く、よりスムーズに作業を行えるようにすることができます。 ユースケースをサポートする組み込みのインテントがない場合は、<a href="https://issuetracker.google.com/issues/new?component=617864&template=1261453" target="_blank">公開されているIssue Tracker</a>で機能リクエストを提出できます。</p>
+<p>このコードラボでは、Actions on Googleで開発するための中級レベルの概念について説明します。 このコードラボをフォローするには、Androidアプリの開発と<a href="https://developer.android.com/training/app-links" target="_blank">ディープリンクの処理</a>の経験が必要です。 Androidについてまったく初めての開発者は、代わりに、<a href="https://developer.android.com/courses/fundamentals-training/toc-v2" target="_blank">Android developers fundamentals</a>のコードラボの1つから始めると良いかもしれません。</p>
+<h2 is-upgraded><strong>何をつくりますか？</strong></h2>
+<p>このコードラボでは、サンプルのフィットネスAndroidアプリに以下の機能を追加します。</p>
+<ul>
+<li>ユーザーは、Googleアシスタントを使用して、アプリのエクササイズタイマーを開始できます。</li>
+<li>ユーザーは、Googleアシスタントを使用して、アプリのエクササイズタイマーを停止できます。</li>
+</ul>
+<p class="image-container"><img style="width: 602.00px" src="img/de98813986ebb042.png"></p>
+<h2 class="checklist" is-upgraded><strong>What you&#39;ll learn</strong></h2>
+<ul class="checklist">
+<li>App ActionsがAndroidアプリに適しているかどうかを確認する方法。</li>
+<li>組み込みインテントをAndroidアクティビティに接続する方法。</li>
+<li>アシスタントからAndroidアプリのディープリンクURLパラメータを取得する方法。</li>
+<li>インラインインベントリを使用して識別子をアプリの機能にマッピングする方法</li>
+<li>Android StudioでApp Actionsをテストする方法。</li>
+</ul>
+<h2 is-upgraded><strong>必要なもの</strong></h2>
+<p>続ける前に、あなたの環境に次のツールがあることを確認してください。</p>
+<ul>
+<li>gitがインストールされた状態の、シェルコマンドを実行するためのターミナル。</li>
+<li><a href="https://developer.android.com/studio" target="_blank">Android Studio</a>の最新バージョン。</li>
+<li><a href="https://play.google.com/apps/publish/" target="_blank">Google Play Console</a>にアクセスできるGoogleアカウント。</li>
+<li>App Actionsをテストするための物理的なAndroidデバイス。</li>
+</ul>
+<p>このコードラボで使用されているコードを理解するには、必須ではありませんが、KotlinとXMLに精通していることが推奨されます。</p>
+<aside class="warning"><p><strong>注意:</strong> App Actionsのテストは、物理的なAndroidデバイスで完了する必要があります。 アシスタントを使用して仮想デバイスでApp Actionsを呼び出そうとすると、期待されるディープリンクの代わりに &#34;Sorry, I couldn&#39;t find that&#34; という応答が発生する可能性があります。</p>
+</aside>
+<p>このコードラボのApp Actionsは、en-US、en-GB、en-CA、en-IN、en-BE、en-SG、en-AUのロケールのGoogleアシスタント言語でのみ正常にトリガーされます。 このコードラボのAndroidアプリで使用される組み込みインテントでは、他の言語とロケールでは使用できません。</p>
+<p>このコードラボでは、Androidデバイスを使用してApp Actionsをテストします。 物理的なAndroidデバイスでテストする前に、ローカルの開発マシンに接続されていることを確認してください。 デバイス上でGoogleアプリにサインインし、同じGoogleアカウントを使用して<a href="https://developer.android.com/studio/intro#sign-in" target="_blank">Android Studioにサインイン</a>する必要があります。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Understand how it works" duration="7">
+        <p>App Actionsは、GoogleアシスタントからAndroidアプリへとユーザーをつなげます。 しかし、それはどのように機能するのでしょうか？</p>
+<p>ユーザーがアシスタントにアプリを使用することを指示すると、アシスタントは、<a href="https://developers.google.com/assistant/app/action-schema" target="_blank"><code>actions.xml</code></a>ファイルからアプリに登録されているApp Actionsを探します。App Actionsは、<a href="https://developers.google.com/assistant/app/reference/built-in-intents" target="_blank">組み込みインテント</a>（意味的にはアプリの機能を表します）と（ディープリンクテンプレートのような）フルフィルメントの手順を組み合わせて使用することが、このファイルに記述されます。</p>
+<p><code>actions.xml</code>ファイルには、各アプリアクションに関する次の情報が含まれます。</p>
+<ul>
+<li>App Actionsが使用する組み込みインテント。</li>
+<li>App Actionsが実行される方法（たとえば、ディープリンクを介して）。</li>
+<li>ユーザーがアシスタントに提供する情報をインテントのパラメーターにマッピングする方法。</li>
+</ul>
+<p>ユーザーからアシスタントに提供された情報に基づいて、App Actionsはインテントを実現するためのディープリンクを作成します。 次に、Androidアクティビティは、提供されたディープリンクをフィルタリングして処理し、ユーザーに必要な機能を提供します。</p>
+<p>全体としては、アシスタントはユーザーのクエリに応答してアプリの機能を呼び出すことで、結果としてユーザ体験となります。</p>
+<aside class="special"><p><strong>Note:</strong> このコードラボでは、Androidアプリでアクティビティを起動する簡単なApp Actionsについて説明します。App Actionsでは、ユーザーがアシスタント上で操作できる埋め込みビジュアルカード（<a href="https://developers.google.com/assistant/app/slices" target="_blank">Android Slice</a>）として情報を提示することもできます。</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Set up for local development" duration="12">
+        <p>このコードラボの出発点は、サンプルのフィットネスAndroidアプリです。 そのアプリでは、ユーザーはエクササイズタイマーを開始したり停止したり、運動ルーチンに関する情報を表示したりできます。</p>
+<h2 is-upgraded><strong>ベースファイルをダウンロードする</strong></h2>
+<p>このコードラボのベースファイルを取得するには、次のコマンドを実行して<a href="https://github.com/actions-on-google/appactions-fitness-kotlin" target="_blank">GitHubリポジトリ</a>をローカルにクローンしてきます:</p>
+<pre><code>git clone --branch codelab-start https://github.com/actions-on-google/appactions-fitness-kotlin.git</code></pre>
+<p><code>--branch codelab-start</code> オプションを使用すると、このコードラボの開始時点でのブランチがチェックアウトされます。</p>
+<aside class="special"><p><strong>Optional:</strong> 完成したプロジェクトを参照したい場合、<code>codelab-complete</code>ブランチには、最終的にこのコードラボのフィットネスアプリがどのように見えるかが含まれています。</p>
+</aside>
+<p>リポジトリをクローンしてきたら、Android Studioで開きます。</p>
+<ol type="1" start="1">
+<li><strong>Welcome to Android Studio</strong> ダイアログで、<strong>Open an existing Android Studio project</strong>をクリックします（既にプロジェクトを開いている場合は閉じます）。</li>
+<li>フィットネスアプリの開発を開始するには、リポジトリをクローンしてきたフォルダーを見つけて選択します。</li>
+</ol>
+<h2 is-upgraded><strong>AndroidのアプリケーションIDを変更する</strong></h2>
+<p>フィットネスアプリにApp Actionsを実装する際に、Android Studioプラグインを使用して入力をテストする必要があります。 このプラグインは後でコードラボでインストールしますが、アプリがGoogle Play Consoleのプロジェクトにアップロードされるまで、テストツールを使用できません。</p>
+<p>コンソールでサンプルフィットネスアプリのバージョンを一意にするには、app/build.gradle ファイルのAndroidのdefault configにセットされているアプリケーションIDを変更します:</p>
+<h3 is-upgraded><a href="https://github.com/actions-on-google/appactions-fitness-kotlin/blob/master/app/build.gradle" target="_blank">build.gradle</a></h3>
+<pre><code>android {
+...
+    defaultConfig {
+        applicationId &#34;com.MYUNIQUENAME.android.fitactions&#34;
+    ...
+    }
+}</code></pre>
+<p><code>applicationId</code>の「MYUNIQUENAME」をあなたの固有のものに置き換えます。 これにより、パッケージ名が変更され、後でPlay Consoleにアップロードするときに「パッケージ名の重複」の問題が発生しなくなります。</p>
+<h2 is-upgraded><strong>アプリを試す</strong></h2>
+<p>アプリに他の変更を加える前に、サンプルアプリで何ができるかを理解しておくと役立ちます。 エミュレーターでアプリを実行してみます:</p>
+<ol type="1" start="1">
+<li>Android Studioで、<strong>Run</strong> &gt;  <strong>Run app</strong> を選択するか、ツールバーの <strong>Run </strong><img style="width: 22.38px" src="img/acabcb8f8634af20.png">をクリックします。</li>
+<li><strong>Select Deployment Target</strong> ダイアログで、Virtual Deviceを選択して <strong>OK</strong> をクリックします。 推奨されるOSバージョンはAndroid 8（API level 26）以上ですが、アクションはAndroid 5（API level 21）のデバイスで実行されます。</li>
+</ol>
+<p>エミュレータは物理デバイスと同じように開始およびブートするため、コンピュータの速度によっては時間がかかる場合があります。 アプリがビルドされ、エミュレーターの準備ができると、Android Studioはアプリをエミュレーターにアップロードして実行します。</p>
+<aside class="special"><p><strong>Note: </strong><a href="https://developer.android.com/studio/run/managing-avds" target="_blank">Android Virtual Device</a>の使用に関する最新情報は、Android Studioのドキュメントにあります。 上記の手順に従って問題が発生した場合は、そちらを参照してください。</p>
+</aside>
+<p class="image-container"><img style="width: 150.50px" src="img/c5a8a020275bdfa2.png"></p>
+<p>アプリを簡単に動かしてみて何ができるかを確認します。 実行アイコンをタップするとエクササイズタイマーが開始し、Xアイコンをタップするとタイマーが停止します。 これらは、AppActionsで有効にする2つのタスクです。</p>
+<p>テストデバイスで上記の手順を繰り返し、アプリが両方の画面で同じように機能することを確認します。 ハンズオンを続ける前に、ホームボタンを長押しして、アシスタントが物理デバイスで設定されていることを確認してください。 まだサインインしていない場合は、テストデバイスでアシスタントにサインインする必要があります。</p>
+<h2 is-upgraded><strong>Play Console にアップロードする</strong></h2>
+<p>Android Studioでアプリをビルドし、内部リリースとしてPlay Consoleにアップロードします。 アプリのアップロードは、Android Studioで App Actions のテストツールを使用するための前提条件です。</p>
+<aside class="warning"><p><strong>注意:</strong> App Actions は現在デベロッパープレビュー段階にあり、<code>actions.xml</code>ファイルを含むApp Bundleをアップロードするとエラーが発生します。 このコードラボは順序化されているため、アプリのアップロードで問題が発生することなくAppActionsをテストできます。</p>
+</aside>
+<p>Android Studioで、次の手順を実行します :</p>
+<ol type="1" start="1">
+<li><strong>Build</strong> &gt; <strong>Generate Signed Bundle / APK</strong> に移動します。</li>
+<li>&#34;Android App Bundle&#34; を選択し、<strong>Next</strong> をクリックします。</li>
+<li><a href="https://developer.android.com/studio/publish/app-signing" target="_blank">アプリにデジタル署名</a>するための詳細を入力し、<strong>Next</strong> をクリックします。</li>
+<li>&#34;release&#34; ビルドバリアントを選択し、<strong>Finish</strong> をクリックします。</li>
+</ol>
+<p><a href="https://play.google.com/apps/publish/" target="_blank">Google Play Console</a>で、作成したApp Bundleを新しいアプリとしてアップロードします:</p>
+<ol type="1" start="1">
+<li><strong>すべてのアプリ</strong> ページで、<strong>アプリの作成</strong> をクリックします。</li>
+<li>アプリに任意の名前を付けて、<strong>作成</strong> をクリックします。 このコードラボでは、アプリの作成後にアプリ情報を入力する必要はありません。</li>
+<li>サイドバーメニューから <strong>アプリのリリース</strong> に移動し、<strong>内部テスト版トラック</strong> セクションに行きます。</li>
+<li><strong>管理</strong> をクリックし、次のページで <strong>リリースを作成</strong> をクリックします。</li>
+<li><strong>追加する Android App Bundle と APK</strong> パネルで、生成したApp Bundleファイルをアップロードします（おそらく<code>app/release</code>ディレクトリにあります）。</li>
+<li><strong>保存 </strong>をクリックします。</li>
+</ol>
+<p>アプリがPlay Consoleに正常にアップロードされたので、Android Studioに戻ります。</p>
+<aside class="warning"><p><strong>日本語版注:</strong> アプリに任意の名前をつけて作成する際に、言語は en-US を選択してください。日本語を選択すると、正しく動作しない可能性があります。</p>
+</aside>
+<h2 is-upgraded><strong>テスト用プラグインをインストールする</strong></h2>
+<p>アシスタントはアプリに登録された App Actions を認識する必要があるため、何らかの方法でその情報を伝達する必要があります。 開発時には、&#34;App Actions test tool&#34; Android Studioプラグインを使用してそれを行います。</p>
+<p>まだプラグインが入っていない場合は、インストールします:</p>
+<ol type="1" start="1">
+<li><strong>File</strong> &gt; <strong>Settings</strong>（Macの場合は、<strong>Android Studio </strong>&gt; <strong>Preferences</strong>）に移動します。</li>
+<li>Plugins セクションで、Marketplace に移動し、&#34;App Actions test tool&#34; を検索します。</li>
+<li>ツールをインストールして、Android Studioを再起動します。</li>
+</ol>
+<aside class="warning"><p><strong>注意:</strong> テストプラグインは、AndroidデバイスのGoogleアプリを介してアシスタントに情報を送信します。 App Actionsが正しく機能するためには、テストデバイスがGoogleアプリを更新するためにPlayストアにアクセスする必要があります。</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Identify App Actions and prepare deep links" duration="10">
+        <p>App Actionsを設定するには、Androidアプリによって実行される機能に関連付けする組み込みインテントを見つける必要があります。 <a href="https://developers.google.com/assistant/app/reference/built-in-intents" target="_blank">組み込みインテントのリファレンスページ</a>には、Googleアシスタントで利用可能な組み込みインテントの一覧があります。それぞれのインテントは、ユーザーが実行しようとしているタスクを表現する一般的な方法をモデル化しています。</p>
+<p>リファレンスでは、App Actionsによって実行できる組み込みインテントがカテゴリと機能ごとにグループ化されています。 あなたのユースケースをサポートする組み込みインテントがない場合は、<a href="https://issuetracker.google.com/issues/new?component=617864&template=1261453" target="_blank">公開されているIssue Tracker</a>で機能のリクエストを投稿してください。</p>
+<aside class="special"><p><strong>Key point:</strong> ユーザーが何をしたいのかに適した組み込みインテントを選択することは、App Actionsを実装する上で不可欠です。</p>
+</aside>
+<p>このコードラボでは、ユーザーを支援するために2つの組み込みインテントを実装しています:</p>
+<ul>
+<li>エクササイズのトラッキングを開始する (<a href="https://developers.google.com/assistant/app/reference/built-in-intents#start-exercise" target="_blank"><code>actions.intent.START_EXERCISE</code></a>)</li>
+<li>エクササイズのトラッキングを停止する (<a href="https://developers.google.com/assistant/app/reference/built-in-intents#stop-exercise" target="_blank"><code>actions.intent.STOP_EXERCISE</code></a>)</li>
+</ul>
+<p>このプロセスでは、ディープリンクを設定し、アプリのXMLリソースで App Actions を定義して、この2つを接続します。</p>
+<h2 is-upgraded><strong>ディープリンクを実装する</strong></h2>
+<p>ディープリンクは、ユーザーをコンテンツに直接導き、情報をインテントからプロセス内のアプリに渡します。 デフォルトでは、アシスタントはディープリンクを使用してインテントを実行し、パラメーターをアプリに渡します。 このコードラボでは、パラメータを受け取るディープリンクは <code>&#34;fit-actions.firebaseapp.com&#34;</code> ホストと <code>&#34;https&#34;</code> スキームを使用します。</p>
+<p>Androidマニフェストファイルで、メインアクティビティのインテントフィルターを追加して、サポートされるディープリンクを定義します:</p>
+<h3 is-upgraded><a href="https://github.com/actions-on-google/appactions-fitness-kotlin/blob/master/app/src/main/AndroidManifest.xml" target="_blank">AndroidManifest.xml</a></h3>
+<pre><code>&lt;activity android:name=&#34;com.devrel.android.fitactions.FitMainActivity&#34; ...&gt;
+    ... // Other intent filters
+    
+    &lt;!-- Define your supported deeplinks --&gt;
+    &lt;intent-filter
+        android:autoVerify=&#34;true&#34;
+        tools:targetApi=&#34;m&#34;&gt;
+        
+        &lt;action android:name=&#34;android.intent.action.VIEW&#34; /&gt;
+
+        &lt;category android:name=&#34;android.intent.category.DEFAULT&#34; /&gt;
+        &lt;category android:name=&#34;android.intent.category.BROWSABLE&#34; /&gt;
+
+        &lt;data
+            android:host=&#34;fit-actions.firebaseapp.com&#34;
+            android:scheme=&#34;https&#34; /&gt;
+    &lt;/intent-filter&gt;
+&lt;/activity&gt;</code></pre>
+<p>次に、メインアクティビティに次の関数を追加して、パラメータを受け取るディープリンクの動作を定義します:</p>
+<h3 is-upgraded><a href="https://github.com/actions-on-google/appactions-fitness-kotlin/blob/master/app/src/main/java/com/devrel/android/fitactions/FitMainActivity.kt" target="_blank"><strong>FitMainActivity.kt</strong></a></h3>
+<pre><code>private fun handleDeepLink(data: Uri?) {
+    when (data?.path) {
+        DeepLink.START -&gt; {
+            // Get the parameter defined as &#34;exerciseType&#34; and add it to the fragment arguments
+            val exerciseType = data.getQueryParameter(DeepLink.Params.ACTIVITY_TYPE).orEmpty()
+            val type = FitActivity.Type.find(exerciseType)
+            val arguments = Bundle().apply {
+                putSerializable(FitTrackingFragment.PARAM_TYPE, type) 
+            }
+
+            updateView(FitTrackingFragment::class.java, arguments)
+        }
+        DeepLink.STOP -&gt; {
+            // Stop the tracking service if any and return to home screen.
+            stopService(Intent(this, FitTrackingService::class.java))
+            updateView(FitStatsFragment::class.java)
+        }
+        else -&gt; {
+            // Path is not supported or invalid, start normal flow.
+            showDefaultView()
+        }
+    }
+}</code></pre>
+<p><code>DeepLink.START</code> および <code>DeepLink.STOP</code> は、サンプルアプリで定数として定義されており、ディープリンクの対応するパスに関連付けされます。 <code>DeepLink.START</code> の場合、ハンドラーはディープリンクのURLパラメーターを介して受け取るパラメータも取得します。</p>
+<p>次に、同じファイルの <code>handleIntent</code> 関数を更新して、ディープリンクハンドラーを使用します:</p>
+<h3 is-upgraded><a href="https://github.com/actions-on-google/appactions-fitness-kotlin/blob/master/app/src/main/java/com/devrel/android/fitactions/FitMainActivity.kt" target="_blank"><strong>FitMainActivity.kt</strong></a></h3>
+<pre><code>private fun Intent.handleIntent() {
+    when (action) {
+        // When the action is triggered by a deep-link, Intent.ACTION_VIEW will be used
+        Intent.ACTION_VIEW -&gt; handleDeepLink(data)
+        // Otherwise start the app as you would normally do.
+        else -&gt; showDefaultView()
+    }
+}</code></pre>
+<p>これで、アプリが <code>&#34;https://fit-actions.firebaseapp.com/start&#34;</code> 形式のインテントをフィルタリングすると、エクササイズタイマーが開始されます。</p>
+<p><a href="https://developer.android.com/studio/command-line/adb" target="_blank">Android Debug Bridge</a> (adb) に慣れている場合は、実行中のデバイスでディープリンクハンドラーをテストできます。 これを行うには、デバイスでアプリを更新し、次のシェルコマンドを使用します。</p>
+<pre><code>adb shell am start -a android.intent.action.VIEW -d &#34;https://fit-actions.firebaseapp.com/start&#34;</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Define App Actions" duration="9">
+        <p>App Actions を機能させるには、アシスタントがアプリに登録されている App Actions を知る必要があります。 この情報を伝えるために、<a href="https://developers.google.com/assistant/app/action-schema" target="_blank"><code>actions.xml</code></a> ファイルをAndroidパッケージの一部としてPlay Consoleにアップロードします。</p>
+<p>新しいリソースを作成し、それを参照するにはいくつかの手順を実行するだけです:</p>
+<ol type="1" start="1">
+<li>接続する組み込みインテントと必要なパラメーターを紐付けるために、<code>actions.xml</code> を作成します。</li>
+<li>組み込みインテントパラメータをアクティビティのディープリンクパラメータにマッピングします。</li>
+<li><code>AndroidManifest.xml</code> の <code>actions.xml</code> ファイルへの参照を追加します。</li>
+</ol>
+<h2 is-upgraded><strong>actions.xml を作成する</strong></h2>
+<p>アプリでサポートされているAppActionsを示すには、<code>app.src/main/res/xml</code> に、<code>actions.xml</code> という名前の新しいXMLファイルを作成します。</p>
+<p>Android Studioで、次の手順を実行します:</p>
+<ol type="1" start="1">
+<li><strong>File</strong> &gt; <strong>New</strong> &gt; <strong>XML</strong> &gt; <strong>App Actions XML File</strong> に移動します。</li>
+<li>Actions File Name に「actions」と入力します。</li>
+<li><strong>Finish</strong> をクリックして、新しい <code>actions.xml</code> ファイルを作成し、その参照を <code>AndroidManifest.xml</code> に追加します。</li>
+</ol>
+<p>新しいファイルが作成されたら、<code>actions.xml</code> の内容を次のコードに置き換えます:</p>
+<h3 is-upgraded><strong>actions.xml</strong></h3>
+<pre><code>&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;
+
+&lt;actions&gt;
+    &lt;action intentName=&#34;actions.intent.START_EXERCISE&#34;&gt;
+        &lt;fulfillment urlTemplate=&#34;https://fit-actions.firebaseapp.com/start{?exerciseType}&#34;&gt;
+            &lt;parameter-mapping
+                intentParameter=&#34;exercise.name&#34; 
+                urlParameter=&#34;exerciseType&#34; /&gt;
+        &lt;/fulfillment&gt;
+    &lt;/action&gt;
+
+    &lt;action intentName=&#34;actions.intent.STOP_EXERCISE&#34;&gt;
+        &lt;fulfillment urlTemplate=&#34;https://fit-actions.firebaseapp.com/stop&#34; /&gt;
+    &lt;/action&gt;
+&lt;/actions&gt;</code></pre>
+<p>上記のコードでは、<code>&lt;action&gt;</code>要素を使用して、アプリでエクササイズタイマーを開始および停止するためのApp Actionsを定義します。 <code>intentName</code> 属性は、App Actionsを使用して実行する2つの<a href="https://developers.google.com/assistant/app/reference/built-in-intents/" target="_blank">組み込みインテント</a>に対応し、<code>&lt;fulfillment&gt;</code> 要素は、アプリを使用してアクションを実行する方法をアシスタントに指示します。</p>
+<p>ここで、両方のアクションは、<code>urlTemplate</code> 属性を使用してディープリンクを作成することで実行されます。 URLテンプレートは、<code>AndroidManifest.xml</code>ファイルでディープリンク用に定義したホストとスキームを使用します。 各URLテンプレートのパスは、 <code>handleDeepLink</code> 関数（先にメインアクティビティに追加したもの）が指定するものに対応しています。</p>
+<p>タイマーを開始するために、組み込みインテントの <code>exercise.name</code> パラメーターも、<code>exerciseType</code> URLパラメーターにマップする必要があることに注意してください。 これにより、ディープリンクハンドラーは、アシスタントからビジネスロジックの引数を取得できます。</p>
+<h2 is-upgraded><strong>Androidマニフェストがactions.xmlを参照していることを確認する</strong></h2>
+<p>前のステップで、Android Studioは <code>AndroidManifest.xml</code> 内の <code>actions.xml</code> ファイルへの参照を追加しました。 これを確認するには、Androidマニフェストで次の <code>&lt;meta-data&gt;</code> 要素を確認します:</p>
+<h3 is-upgraded><a href="https://github.com/actions-on-google/appactions-fitness-kotlin/blob/master/app/src/main/AndroidManifest.xml" target="_blank"><strong>AndroidManifest.xml</strong></a></h3>
+<pre><code>&lt;application&gt;
+    ...
+    
+    &lt;meta-data
+        android:name=&#34;com.google.android.actions&#34;
+        android:resource=&#34;@xml/actions&#34; /&gt;
+&lt;/application&gt;</code></pre>
+<p>上記の <code>&lt;meta-data&gt;</code> 要素がマニフェストファイルにある場合は、App Actions のテストに進みます。</p>
+<p>上記の <code>&lt;meta-data&gt;</code> 要素がマニフェストファイルにない場合は、追加します。</p>
+<h2 is-upgraded><strong>App Actions をテストする</strong></h2>
+<p>それでは、テストデバイスでApp Actionsを試してみましょう。</p>
+<p>テストデバイスを接続し、テストツールを使用してApp Actionsをテストします:</p>
+<ol type="1" start="1">
+<li>Tools &gt; <strong>App Actions Test Tool</strong> に移動します。 Android Studioへの<a href="https://developer.android.com/studio/intro#sign-in" target="_blank">サインイン</a>を求められる場合があります。 以前にGoogle Play Consoleで使用したのと同じアカウントを使用します。</li>
+<li><strong>Invocation Name</strong> フィールドに、&#34;Fit Actions&#34; と入力します。</li>
+<li>アシスタントの言語が &#34;English (US)&#34; ではない場合、Locale フィールドにアシスタントの言語と一致するロケールを入力します。</li>
+<li><strong>Create Preview</strong> をクリックします。</li>
+<li><strong>Configure</strong> ドロップダウンリストを使用して、テストする組み込みインテントを選択します。</li>
+<li><strong>Run</strong> をクリックします。テストデバイスで Googleで開くオプションが表示された場合は、&#34;Always&#34; を選択して、サポートされているリンクをアシスタントが開くことを許可します（これはアプリの設定で後で変更できます）。</li>
+</ol>
+<p><a href="https://developers.google.com/assistant/app/test-tool" target="_blank">App Actions test tool</a> がApp Actionsのプレビューを作成または更新する場合、1つのGoogleアカウントに対してこれが行われ、定義されたApp Actionsが一時的に登録されます。 そのプレビューにより、アシスタントはアプリの本番バージョンをGoogle Play Consoleにデプロイする前にApp Actionsを認識できます。</p>
+<p>テストツールがアプリの組み込みインテントを取得したら、インテントにパラメーター値を直接提供し、Android StudioからApp Actionsをトリガーできます。</p>
+<p>別の方法として、デバイスのアシスタントアプリで直接呼び出し名を使用して、App Actionsを試すこともできます。 たとえば、 &#34;Hey Google, start running in Fit Actions&#34; と発声して、エクササイズタイマーを開始するApp Actionsを起動できます。</p>
+<aside class="special"><p><strong>Tip: ホーム</strong>ボタンを長押しして、音声が検出されないときに表示される<strong>キーボード</strong>アイコンをタップすると、アシスタントにコマンドを入力できます。</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Support specific wordings" duration="10">
+        <p>これで、Googleアシスタントを介してフィットネスアプリでエクササイズタイマーを開始および停止できるようになりましたが、特定のエクササイズのみが認識されることに気づいたかもしれません。&#34;Start my swim in Fit Actions&#34; や &#34;Start hiking in Fit Actions&#34; などのリクエストは、&#34;Start unknown in ...&#34; というテキストで始まるタイマーにつながります。</p>
+<p>これは、サンプルアプリで現在サポートされているエクササイズタイプが &#34;Running&#34;, &#34;Cycling&#34;, &#34;Walking&#34; のみであるためです。 アプリを使用して他のエクササイズを記録したいユーザーに、より適切に対応するにはどうすればよいでしょうか？</p>
+<p>このアプリでは、いくつかの方法で利用可能なエクササイズの数を増やすことができます:</p>
+<ul>
+<li>swimming や climbing などのより多くのエクササイズのタイプに対してサポートを追加します（<a href="https://developers.google.com/assistant/app/reference/built-in-intents/health-and-fitness/start-exercise" target="_blank"><code>actions.intent.START_EXERCISE</code></a><code> </code>組み込みインテントでサポートされるテキストフィールド値によって制限されます）</li>
+<li>&#34;hiking&#34; など、サポートされている別のエクササイズのタイプを、 &#34;walking&#34; などのアプリでサポートされているエクササイズのタイプにマッピングします。</li>
+</ul>
+<aside class="special"><p><strong>Tip:</strong> どちらの方法も、ユーザーをプロセスに送りますが、必ずしもプロセスの最後まで行うわけではありません。非常に複雑なフレーズを作成することは避けてください。</p>
+</aside>
+<p>より多くの種類のエクササイズをサポートすると、ユーザーが実行したいエクササイズに基づいて、アプリ内のより多くの経路に接続できます。 これはユーザーをサポートする1つの方法であり、アプリがさまざまなエクササイズに対してさまざまなタスクを実行できる場合は、これが正しい選択です。</p>
+<p>フィットネスアプリの場合は、2つ目のオプションを使用して、アシスタントをすぐに使いやすくすることができます。 これを行うと、ユーザーは、サポートされている別のテキストフィールド値を含むクエリを使用してタイマーを開始できます。 このコードラボでは、インラインインベントリを使用して、&#34;Start hiking&#34; を &#34;Start walking&#34; のアプリ機能にマッピングします。</p>
+<h2 is-upgraded><strong>Inline inventory</strong></h2>
+<p>インラインインベントリは、アシスタントを使用してApp Actionsをトリガーするときにアプリがユーザーに含めることを期待する特定のエンティティを定義します。 <code>actions.xml</code> ファイルにインラインインベントリを追加して、ユーザーがサポートするオプションのリストを直接作成します。 インベントリ項目は <code>&lt;entity-set&gt;</code> 要素にグループ化され、アクションの定義はエンティティセットを参照して、それらをマッピングパラメータに使用できます。</p>
+<p>前述のように、サンプルアプリには &#34;Running&#34;, &#34;Cycling&#34;, &#34;Walking&#34; をサポートする機能があります。 エンティティセットを作成し、<code>actions.intent.START_EXERCISE</code> で参照するため、アプリはディープリンクにエンティティ識別子のみを使用する必要があります:</p>
+<h3 is-upgraded><strong>actions.xml</strong></h3>
+<pre><code>&lt;actions&gt;
+    &lt;action intentName=&#34;actions.intent.START_EXERCISE&#34;&gt;
+        ...
+        
+        &lt;!-- Map a parameter to an entity set reference --&gt;
+        &lt;parameter name=&#34;exercise.name&#34;&gt;
+            &lt;entity-set-reference entitySetId=&#34;ExerciseEntitySet&#34; /&gt;
+        &lt;/parameter&gt;
+    &lt;/action&gt;
+    ...
+    
+    &lt;!-- Define an inline inventory --&gt;
+    &lt;!-- This sample maps supported entities with the class FitActivity.Type --&gt;
+    &lt;entity-set entitySetId=&#34;ExerciseEntitySet&#34;&gt;
+        &lt;entity
+            name=&#34;@string/activity_running&#34;
+            identifier=&#34;RUNNING&#34; /&gt;
+        &lt;entity
+            name=&#34;@string/activity_walking&#34;
+            identifier=&#34;WALKING&#34; /&gt;
+        &lt;entity
+            name=&#34;@string/activity_hiking&#34;
+            identifier=&#34;WALKING&#34; /&gt;
+        &lt;entity
+            name=&#34;@string/activity_cycling&#34;
+            identifier=&#34;CYCLING&#34; /&gt;
+    &lt;/entity-set&gt;
+&lt;/actions&gt;</code></pre>
+<p>インラインインベントリの各 <code>&lt;entity&gt;</code> 要素は、ユーザーのクエリに対する一意の一致を表します。 エンティティを使用すると、アシスタントは &#34;Running&#34;, &#34;Cycling&#34;, &#34;Walking&#34; などのサポートされている入力を区別できます。 別のアプリのメニューアイテムやサービスの場合と同様に、追加の構造化データを含めるときに特に役立ちます。文字列 &#34;hiking&#34; のエンティティを追加することで、ハイキング用に既に構築した機能をハイカーが利用できるようになります。</p>
+<aside class="special"><p><strong>Note:</strong> このフィットネスサンプルでは、<code>actions.intent.START_EXERCISE</code> 組み込みインテントが、アプリのビジネスロジックの文字列に厳密に一致するテキストフィールド値を提供します。 組み込みインテントでサポートされているテキストフィールド値は、URLまたはディープリンクの識別子にマップできる事前定義のインラインインベントリ値と考えてください。 つまりエンティティは主にこれらのテキストフィールド値のマッピングレイヤーとして機能し、厳密にはこれらの文字列を一意に識別するために必要ではありません。</p>
+</aside>
+<h2 is-upgraded><strong>Inventory をテストする</strong></h2>
+<p>テストツールでプレビューを作成または更新すると、アプリに登録されている組み込みインテントがフェッチされます。 その後、パラメーター値をインテントに直接提供し、Android Studioから App Action をトリガーできます。</p>
+<p>App Actions test tool でインベントリを試します:</p>
+<ol type="1" start="1">
+<li><strong>Update Preview</strong> をクリックします。</li>
+<li><strong>Configure</strong> ドロップダウンリストから &#34;actions.intent.START_EXERCISE&#34; を選択します。</li>
+<li><strong>exercise.name</strong> フィールドに &#34;hiking&#34; と入力します。</li>
+<li><strong>Select Target Device</strong> ドロップダウンリストからテストデバイスを選択します。</li>
+<li><strong>Run</strong> をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 602.00px" src="img/fc49321e7c644ee2.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Next steps" duration="0">
+        <h2 is-upgraded><strong>おめでとうございます！</strong></h2>
+<p>これで、AndroidアプリにApp Actionsを追加するために必要なスキルを学ぶことができました。</p>
+<h2 class="checklist" is-upgraded><strong>What we&#39;ve covered</strong></h2>
+<ul class="checklist">
+<li>App Actionsを介してトリガーできる組み込みインテントユーザーがいるAndroidアクティビティを識別する方法。</li>
+<li>組み込みインテントからAndroidアプリにパラメーターを渡す方法。</li>
+<li>インラインインベントリを使用して、サポートされている値をアプリの機能識別子にマップする方法。</li>
+<li>Android StudioでApp Actionsをテストする方法。</li>
+</ul>
+<h2 is-upgraded><strong>What&#39;s next</strong></h2>
+<p>ここから、フィットネスアプリをさらに改良してみることができます。 インスピレーションを与えるために、GitHubのリポジトリのマスターブランチにアプリの拡張バージョンを提供しています。 拡張バージョンでは、Androidスライスを使用して、アシスタントを通じてエクササイズ情報をさらに表示します。 また、本番用Androidアプリのアプリアクションのデプロイ要件も組み込まれています。</p>
+<p>Actions on Googleの詳細については、次のリソースをご覧ください:</p>
+<ul>
+<li><a href="https://developers.google.com/assistant" target="_blank">actions.google.com</a>：Actions on Googleの公式ドキュメントサイトです。</li>
+<li><a href="https://github.com/actions-on-google/" target="_blank">Actions on Google の Google GitHubリポジトリ</a>：サンプルコードとライブラリがあります。</li>
+<li><a href="https://www.reddit.com/r/GoogleAssistantDev/" target="_blank">r/GoogleAssistantDev</a>：Googleアシスタントを使用する開発者向けの公式Redditコミュニティです。</li>
+<li>Twitter <a href="https://twitter.com/ActionsOnGoogle" target="_blank">@ActionsOnGoogle</a> をフォローしてください。また、あなたが開発したものを <a href="https://twitter.com/hashtag/AoGDevs?src=hash" target="_blank">#AoGDevs</a> および <a href="https://twitter.com/hashtag/AoGDevsJa?src=hash" target="_blank">#AoGDevsJa</a> にてシェアしてください。</li>
+</ul>
+<h2 is-upgraded><strong>Feedback survey</strong></h2>
+<p>最後に、<a href="https://forms.gle/RH5YNHdP1HtdDTjs9" target="_blank">このフォーム</a>に記入して、コードラボの改善にご協力ください。 問題が発生した場合、手順を完了するためにさらに情報が必要な場合、またはすべてが順調に進んだ場合でもお知らせください。</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+
+</body>
+</html>

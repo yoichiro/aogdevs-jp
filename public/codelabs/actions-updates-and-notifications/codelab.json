@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-790299-29",
+  "updated": "2019-06-13T12:44:56Z",
+  "id": "actions-updates-and-notifications",
+  "duration": 91,
+  "title": "Build Actions for Google Assistant with Daily Updates / Push Notifications",
+  "authors": "yoichiro",
+  "summary": "This codelab covers a development of actions with Daily Updates and Push Notification features.",
+  "source": "16KyExZeFNbkZsIvkcoH01ujr2lWassQXb6iyolABZrI",
+  "theme": "assistant",
+  "status": [
+    "live"
+  ],
+  "category": [
+    "Assistant"
+  ],
+  "tags": [
+    "lang-en",
+    "tag-assistant",
+    "web"
+  ],
+  "url": "actions-updates-and-notifications"
+}
