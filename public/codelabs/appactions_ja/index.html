@@ -118,6 +118,8 @@
 <li>Android Studioで、<strong>Run</strong> &gt;  <strong>Run app</strong> を選択するか、ツールバーの <strong>Run </strong><img style="width: 22.38px" src="img/acabcb8f8634af20.png">をクリックします。</li>
 <li><strong>Select Deployment Target</strong> ダイアログで、Virtual Deviceを選択して <strong>OK</strong> をクリックします。 推奨されるOSバージョンはAndroid 8（API level 26）以上ですが、アクションはAndroid 5（API level 21）のデバイスで実行されます。</li>
 </ol>
+<aside class="warning"><p><strong>日本語版注:</strong> もし &#34;Error while executing: ...&#34; というエラーメッセージが表示されてアプリの起動に失敗した場合は、Android Studio にて <strong>Build</strong> &gt; <strong>Rebuild Project</strong> を選択した後に、 <strong>Run</strong> &gt; <strong>Run app</strong> あるいはツールバーの <strong>Run </strong><img style="width: 22.38px" src="img/acabcb8f8634af20.png"><strong> </strong>をクリックしてください。</p>
+</aside>
 <p>エミュレータは物理デバイスと同じように開始およびブートするため、コンピュータの速度によっては時間がかかる場合があります。 アプリがビルドされ、エミュレーターの準備ができると、Android Studioはアプリをエミュレーターにアップロードして実行します。</p>
 <aside class="special"><p><strong>Note: </strong><a href="https://developer.android.com/studio/run/managing-avds" target="_blank">Android Virtual Device</a>の使用に関する最新情報は、Android Studioのドキュメントにあります。 上記の手順に従って問題が発生した場合は、そちらを参照してください。</p>
 </aside>
@@ -135,6 +137,11 @@
 <li><a href="https://developer.android.com/studio/publish/app-signing" target="_blank">アプリにデジタル署名</a>するための詳細を入力し、<strong>Next</strong> をクリックします。</li>
 <li>&#34;release&#34; ビルドバリアントを選択し、<strong>Finish</strong> をクリックします。</li>
 </ol>
+<aside class="warning"><p><strong>日本語版注:</strong> 上記の App Bundle の作成は、以下の資料にて詳しい手順が説明されていますので、そちらを参照しながら行ってください。</p>
+<ul>
+<li><a href="https://docs.google.com/document/d/1OtCppyPrGGLZq0QOw5XJFhc0dNE2SCK5GE5WPRK1wo8/edit#" target="_blank">How to Generate Signed Bundle</a></li>
+</ul>
+</aside>
 <p><a href="https://play.google.com/apps/publish/" target="_blank">Google Play Console</a>で、作成したApp Bundleを新しいアプリとしてアップロードします:</p>
 <ol type="1" start="1">
 <li><strong>すべてのアプリ</strong> ページで、<strong>アプリの作成</strong> をクリックします。</li>
