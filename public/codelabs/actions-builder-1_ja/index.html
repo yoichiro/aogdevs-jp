@@ -35,8 +35,8 @@
 <ul>
 <li>挨拶メッセージでユーザーに応答します。</li>
 <li>ユーザーに質問します。 ユーザーが応答すると、アクションはユーザーの選択に適切に応答します。</li>
-<li>ユーザーがクリックして入力できる提案チップを提供します。</li>
-<li>彼らがリピーターであるかどうかに基づいて、ユーザーへの挨拶メッセージを変更します。</li>
+<li>ユーザーがクリックして入力できるサジェスチョンチップを提供します。</li>
+<li>ユーザーがリピーターであるかどうかに基づいて、ユーザーへの挨拶メッセージを変更します。</li>
 </ul>
 <p>このコードラボを完了した後の完成したアクションは、次の会話フローになります。</p>
 <p class="image-container"><img style="width: 601.70px" src="img/520d875d8bd6730f.png"></p>
@@ -76,7 +76,7 @@
 <ol type="1" start="1">
 <li><a href="https://console.actions.google.com/" target="_blank">Actions console</a> を開きます。</li>
 <li><strong>New project</strong> をクリックします。</li>
-<li><code>actions-codelab �</code><strong>�ように Project name</strong> に入力します（この名前は内部で参照されます。後で、プロジェクトの外部向けの名前を設定することができます。）。<br><img style="width: 512.00px" src="img/f6fa95988dc398a5.png"></li>
+<li><code>actions-codelab</code> のように <strong>Project name</strong> に入力します（この名前は内部で参照されます。後で、プロジェクトの外部向けの名前を設定することができます。）。<br><img style="width: 512.00px" src="img/f6fa95988dc398a5.png"></li>
 <li><strong>Create project</strong> をクリックします。</li>
 <li><strong>What kind of Action do you want to build?</strong> 画面にて、<strong>Custom</strong> カードを選択して、<strong>Next</strong> をクリックします。</li>
 <li><strong>Blank project</strong> カードを選択します。その後、<strong>Start building</strong> をクリックします。</li>
@@ -86,11 +86,11 @@
       </google-codelab-step>
     
       <google-codelab-step label="Start a conversation" duration="0">
-        <p>ユーザーはinvocationを通じてアクションとの会話を開始します。 たとえば、MovieTimeという名前のアクションがある場合、ユーザーは「Ok Google, talk to MovieTime」というようなフレーズを言ってアクションを呼び出すことができます。MovieTimeはdisplay nameです。 本番環境にデプロイする場合、アクションにはdisplay nameが必要です。 ただし、アクションをテストするために、display nameを定義する必要はありません。 代わりに、シミュレータで「Talk to my test app」というフレーズを使用してアクションを呼び出すことができます。</p>
-<p>また、Main invocationを編集して、ユーザーがアクションを呼び出した後の動作を定義する必要があります。</p>
+        <p>ユーザーは <em>invocation（呼び出し）</em> を通じてアクションとの会話を開始します。 たとえば、<em>MovieTime </em>という名前のアクションがある場合、ユーザーは <em>&#34;Ok Google, talk to MovieTime&#34;</em> というようなフレーズを言ってアクションを呼び出すことができます。<em>MovieTime </em>は <em>display name </em>です。 本番環境にデプロイする場合、アクションにはdisplay nameが必要です。 ただし、アクションをテストするために、display nameを定義する必要はありません。 代わりに、シミュレータで <em>&#34;Talk to my test app&#34;</em> というフレーズを使用してアクションを呼び出すことができます。</p>
+<p>また、<em>main invocation </em>を編集して、ユーザーがアクションを呼び出した後の動作を定義する必要があります。</p>
 <aside class="special"><p><strong>主な用語：</strong></p>
 <ul>
-<li><strong>Main invocation:</strong> ユーザーがアクションとの会話を開始するためのエントリポイント。 ユーザーが「Ok Google, talk to &lt;display name&gt;」というようなフレーズを言うと、Main invocationがトリガーされ、ユーザーに応答します。</li>
+<li><strong>Main invocation:</strong> ユーザーがアクションとの会話を開始するためのエントリポイント。 ユーザーが <em>&#34;Ok Google, talk to &lt;display name&gt;&#34;</em> というようなフレーズを言うと、main invocationがトリガーされ、ユーザーに応答します。</li>
 </ul>
 </aside>
 <p>デフォルトでは、Actions Builderはinvocationがトリガーされたときに一般的なプロンプトを提供します(<em>&#34;Start building your Action by defining main invocation.&#34;)</em>。</p>
@@ -105,7 +105,7 @@
 <p>ユーザーがアクションを呼び出したときにアクションがユーザーに返すプロンプトを変更するには、次の手順に従ってください:</p>
 <ol type="1" start="1">
 <li>左側のナビゲーションで <strong>Main invocation</strong> をクリックします。<br><img style="width: 601.70px" src="img/c5e87e71d7a0b1a5.png"></li>
-<li>右側のコードエディターで、speechフィールドのテキスト（アクションの作成を開始します...）を次のウェルカムメッセージに置き換えます: <code>A wondrous greeting, adventurer! Welcome to the mythical land of Gryffinberg! Based on your clothes, you are not from around these lands. It looks like you&#39;re on your way to an epic journey.</code></li>
+<li>右側のコードエディターで、<code>speech</code> フィールドのテキスト（<code>Start building your action...</code>）を次のウェルカムメッセージに置き換えます: <code>A wondrous greeting, adventurer! Welcome to the mythical land of Gryffinberg! Based on your clothes, you are not from around these lands. It looks like you&#39;re on your way to an epic journey.</code></li>
 </ol>
 <aside class="special"><p><strong>Note: </strong><a href="https://en.wikipedia.org/wiki/YAML" target="_blank">YAML</a> または <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a> 形式を使用してプロンプトを編集できます。</p>
 </aside>
@@ -113,26 +113,26 @@
 <li><strong>Save</strong> をクリックします。</li>
 </ol>
 <h2 is-upgraded><strong>シュミレーターで main invocation をテストする</strong></h2>
-<p>アクションコンソールには、シミュレータと呼ばれるアクションをテストするためのWebツールが用意されています。 インターフェイスはハードウェアデバイスとその設定をシミュレートするため、スマートディスプレイ、電話、スピーカー、またはKaiOSで実行されているかのようにアクションと対話できます。</p>
+<p>アクションコンソールには、<em>シミュレータ</em>と呼ばれるアクションをテストするためのWebツールが用意されています。 インターフェイスはハードウェアデバイスとその設定をシミュレートするため、スマートディスプレイ、電話、スピーカー、またはKaiOSで実行されているかのようにアクションと対話できます。</p>
 <aside class="special"><p><strong>Note:</strong> アクションコンソールのシミュレータの使用に関する最新情報は、<a href="https://developers.google.com/assistant/console/simulator" target="_blank">アクションシミュレータガイド</a> に記載されています。 次の手順に従って問題が発生した場合は、そちらを参照してください。</p>
 </aside>
 <p>アクションを呼び出すと、追加したカスタマイズされたプロンプト(<em>&#34;A wondrous greeting, adventurer!...&#34;</em>)で応答するようになります。</p>
 <p>シミュレータでアクションのmain invocationをテストするには、以下の手順に従ってください:</p>
 <ol type="1" start="1">
 <li>上部のナビゲーションバーで、 <strong>Test</strong> をクリックしてシミュレータに移動します。</li>
-<li>シミュレータでアクションを起動するには、左上の <strong>Input</strong> フィールドに <code>Talk to my test �</code><strong>�力して Enter </strong><code>キーを押します。</code></li>
+<li>シミュレータでアクションを起動するには、左上の <strong>Input</strong> フィールドに <code>Talk to my test app</code> と入力して <strong>Enter </strong>キーを押します。</li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/666f4c2f76f00d6.png"></p>
 <aside class="special"><p><strong>Tip:</strong> サジェストチップの <code>Talk to my test app</code> をクリックしたり、マイクアイコンをクリックして <em>&#34;Talk to my test app&#34;</em> と言ってアクションを呼び出すこともできます。</p>
 </aside>
 <p>アクションの main invocation をトリガーすると、アシスタントはカスタマイズされたウェルカムメッセージで応答します。 今の段階では、アシスタントが挨拶で応答した後、会話は終了します。 次のセクションでは、会話が続くようにアクションを変更します。</p>
 <h2 is-upgraded><strong>イベントログの確認</strong></h2>
-<p>Test タブでは、右側のパネルにイベントログが表示され、会話履歴がイベントログとして表示されます。 各イベントログには、その会話のターン中に発生したイベントが表示されます。</p>
-<p>アクションには現在、1つのイベントログがあり、ユーザーの入力 (&#34;Talk to my test app&#34;) とアクションの応答の両方が表示されます。 次のスクリーンショットは、アクションのイベントログを示しています:</p>
+<p><strong>Test</strong> タブでは、右側のパネルにイベントログが表示され、会話履歴がイベントログとして表示されます。 各イベントログには、その会話のターン中に発生したイベントが表示されます。</p>
+<p>アクションには現在、1つのイベントログがあり、ユーザーの入力 ( <em>&#34;Talk to my test app&#34; </em>) とアクションの応答の両方が表示されます。 次のスクリーンショットは、アクションのイベントログを示しています:</p>
 <p class="image-container"><img style="width: 601.70px" src="img/e23443983a4d1df7.png"></p>
 <p>イベントログの下向き矢印をクリックすると、発生したイベントが時系列で表示されます:</p>
 <ul>
-<li><code>userInput</code>: ユーザーの入力値 (&#34;Talk to my test app&#34;).</li>
+<li><code>userInput</code>: ユーザーの入力値 ( <em>&#34;Talk to my test app&#34; </em>).</li>
 <li><code>interactionMatch</code>: ユーザーの入力によってトリガーされたアクションの main invocation の応答。 矢印をクリックしてこの行を展開すると、main invocation 用に追加したプロンプトが表示されます (<code>A wondrous greeting, adventurer!...</code>)</li>
 <li><code>endConversation</code>: 現在の会話を終了する <code>Main invocation</code> インテントで選択されたトランジションに対応します。 （トランジションについては、このコードラボの次のセクションで詳しく説明します）</li>
 </ul>
@@ -166,12 +166,12 @@
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/72dc62145c4cb90f.png"></p>
 <ol type="1" start="3">
-<li><strong>Add </strong><code>をク</code>リックします。 これにより、 <code>Start</code> <code>と呼ばれるシ</code>ーンが作成され、アクションがユーザーにウェルカムプロンプトを配信した後、アクションに Start <code>シーンに遷移するよう指示されます。</code></li>
-<li><code>左�</code>�のナビゲーションで <strong>Scenes </strong><code>をクリックして、シーンのリストを表示します。</code></li>
-<li><strong>Scenes </strong><code>�</code>�� <strong>Start </strong><code>を�</code>��リックして、 <code>Start</code> <code>シーンを表示します。</code></li>
-<li> <code>Start</code> <code>�</code>�ーンの <strong>On enter </strong><code>�</code>�クションで <strong>+ </strong><code>をクリックします。</code></li>
-<li> <strong>Send prompts </strong><code>ボックスを選択します。</code></li>
-<li> <code>speech</code> <code>フ</code>ィールドの文 (<code>Enter the response that users will see or hear...</code>) <code>をユ</code>ーザーに尋ねる質問に置き換えます: <code>Before you continue on your quest, would you like your fortune told?</code></li>
+<li><strong>Add </strong>をクリックします。 これにより、 <code>Start</code> と呼ばれるシーンが作成され、アクションがユーザーにウェルカムプロンプトを配信した後、アクションに <code>Start</code> シーンに遷移するよう指示されます。</li>
+<li>左側のナビゲーションで <strong>Scenes</strong> をクリックして、シーンのリストを表示します。</li>
+<li><strong>Scenes </strong>で <strong>Start</strong> をクリックして、 <code>Start</code> シーンを表示します。</li>
+<li> <code>Start</code> シーンの <strong>On enter</strong> セクションで <strong>+</strong> をクリックします。</li>
+<li> <strong>Send prompts</strong> ボックスを選択します。</li>
+<li> <code>speech</code> フィールドの文 (<code>Enter the response that users will see or hear...</code>) をユーザーに尋ねる質問に置き換えます: <code>Before you continue on your quest, would you like your fortune told?</code></li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/9f18466e4bc0c4b3.png"></p>
 <ol type="1" start="9">
@@ -325,8 +325,8 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Fulfillment の実装" duration="0">
-        <p>現段階では、アクションの応答は静的です。 プロンプトを含むシーンがアクティブ化されると、アクションは毎回同じプロンプトを送信します。 このセクションでは、動的な会話型応答を構築するロジックを含むフルフィルメントを実装します。</p>
+      <google-codelab-step label="Implement fulfillment" duration="0">
+        <p>現段階では、アクションの応答は静的です。 プロンプトを含むシーンがアクティブ化されると、アクションは毎回同じプロンプトを送信します。 このセクションでは、動的な会話型レスポンスを構築するロジックを含むフルフィルメントを実装します。</p>
 <aside class="special"><p><strong>主な用語:</strong></p>
 <ul>
 <li><strong>Fulfillment（フルフィルメント）:</strong> アクションのロジックを含むコード。 Webhookは、アクション内で発生するイベントに基づいてフルフィルメントへの呼び出しをトリガーします。</li>
@@ -372,7 +372,7 @@ exports.ActionsOnGoogleFulfillment = functions.https.onRequest(app);</code></pre
 <li><strong>Deploy Fulfillment</strong> をクリックします。</li>
 </ol>
 <p>Cloud Functions がフルフィルメントをプロビジョニングしデプロイを完了するまで数分待ちます。 コードエディタの上に &#34;Cloud Function deployment in progress...&#34; というメッセージが表示されます。 コードが正常に完了すると、メッセージが &#34;Your Cloud Function deployment is up to date.&#34; に更新されます。</p>
-<h3 is-upgraded><strong>Code を理解する</strong></h3>
+<h3 is-upgraded><strong>コードを理解する</strong></h3>
 <p><a href="https://github.com/actions-on-google/assistant-conversation-nodejs" target="_blank">Node.js 用の Actions on Google フルフィルメントライブラリ</a> を使用するフルフィルメントは、GoogleアシスタントからのHTTPリクエストに応答します。</p>
 <p>前述のコードスニペットでは、lastSeenTimeプロパティに値があるかどうかをチェックすることにより、ユーザーが以前にアクションにアクセスしたかどうかをチェックするグリーティングハンドラーを定義します。 datetime値がある場合、メッセージはユーザーの戻りを確認し、変更された挨拶を生成します。 それ以外の場合は、新しいユーザーにオリジナルの挨拶を返します。</p>
 <h2 is-upgraded><strong>Webhook をトリガーするように main invocation を更新する</strong></h2>
@@ -413,7 +413,7 @@ exports.ActionsOnGoogleFulfillment = functions.https.onRequest(app);</code></pre
 <ul>
 <li><a href="https://developers.google.com/assistant" target="_blank">The official documentation site</a>: Actions on Googleの公式ドキュメントサイトです。</li>
 <li><a href="https://github.com/actions-on-google/" target="_blank">Actions on Google GitHub page</a>: サンプルコードとライブラリがあります。</li>
-<li><a href="https://www.reddit.com/r/GoogleAssistantDev/" target="_blank">The official Reddit community</a>: Google アシスタントを利用するデベロッパーコミュニティ</li>
+<li><a href="https://www.reddit.com/r/GoogleAssistantDev/" target="_blank">The official Reddit community</a>: Google アシスタントを利用するデベロッパーコミュニティです。</li>
 </ul>
 <p>Twitter <a href="https://twitter.com/ActionsOnGoogle" target="_blank">@ActionsOnGoogle</a> をフォローしてください。また、あなたが開発したものを <a href="https://twitter.com/hashtag/AoGDevs?src=hash" target="_blank">#AoGDevs</a> および <a href="https://twitter.com/hashtag/AoGDevsJa?src=hash" target="_blank">#AoGDevsJa</a> にてシェアしてください。</p>
 
