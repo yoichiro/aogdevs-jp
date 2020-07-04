@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-790299-29",
+  "updated": "2020-07-04T11:40:18Z",
+  "id": "actions-builder-2_ja",
+  "duration": 0,
+  "title": "Build Actions for Google Assistant using Actions Builder (Level 2) [Japanese]",
+  "authors": "yui, yoichiro",
+  "summary": "This codelab covers how to build actions using Actions Builder.",
+  "source": "1XT4iuXjDCwtqxEq4mNgIuIvediKtFJg44lBLPXDyjps",
+  "theme": "assistant",
+  "status": [
+    "live"
+  ],
+  "category": [
+    "Assistant"
+  ],
+  "tags": [
+    "lang-ja",
+    "tag-assistant",
+    "web"
+  ],
+  "url": "actions-builder-2_ja"
+}
