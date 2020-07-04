@@ -74,20 +74,20 @@
 <li>コードラボレベル1のアクションプロジェクトを開きます。</li>
 <li>上部ナビゲーションの <strong>Develop</strong> をクリックします。</li>
 <li><strong>Scenes</strong> の下で、 <strong>Start</strong> シーンをクリックします。</li>
-<li><strong>yes</strong> インテント（<strong>yes が一致した場合の</strong> ボックス）をクリックしてオプションを開きます。</li>
-<li><strong>Send prompts</strong> をクリアして、プロンプトを削除します。</li>
+<li><strong>yes</strong> インテント（<strong>When yes is matched</strong> ボックス）をクリックしてオプションを開きます。</li>
+<li><strong>Send prompts</strong> の選択を外して、プロンプトを削除します。</li>
 <li><strong>Transition</strong> セクションで、ドロップダウンメニューをクリックし、テキストボックスをクリックして、 <code>Fortune</code> と入力します。 次に、 <strong>Add</strong> をクリックします。 これにより、 <code>Fortune</code> と呼ばれる新しいシーンが作成されます。 また、ユーザーが運勢を聞きたいときに、 <code>Start</code> シーンから <code>Fortune</code> シーンへの遷移を追加します。</li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/5011e3674bbfc009.png"></p>
 <h2 is-upgraded><strong><code>Fortune</code></strong><strong> シーンの会話ロジックを定義する</strong></h2>
-<p>このコードラボでは、 <code>Fortune</code> シーンを構成して、ユーザーに &#34;What do you choose to help you on your quest, a dragon, a translator, or a compass?&#34; と尋ねます。 スロットフィリングと呼ばれる機能を使用して、先に進む前にユーザーから必要な情報を収集できます。</p>
+<p>このコードラボでは、 <code>Fortune</code> シーンを構成して、ユーザーに <em>&#34;What do you choose to help you on your quest, a dragon, a translator, or a compass?&#34;</em> と尋ねます。 <em>slot filling（スロットフィリング）</em>と呼ばれる機能を使用して、先に進む前にユーザーから必要な情報を収集できます。</p>
 <aside class="special"><p><strong>主な用語：</strong></p>
 <ul>
 <li><strong>Slot filling（スロットフィリング）:</strong> 複数のインテントを作成する必要なしに、自然な前後の会話を通じてユーザーから一連の値（スロット）を収集できる会話ロジックの機能。</li>
 <li><strong>Slots（スロット）:</strong> ユーザーの入力値から抽出するデータ。</li>
 </ul>
 </aside>
-<p>アクションは、ドラゴン、トランスレーター、コンパスの3つの支援にフォーチュンを与えます。 ユーザーの入力でこれら3つのオプションを識別するようにアクションを構成するには、新しいタイプを作成する必要があります。</p>
+<p>アクションは、ドラゴン、トランスレーター、コンパスの3つの支援にフォーチュンを与えます。 ユーザーの入力でこれら3つのオプションを識別するようにアクションを構成するには、新しい<em>type（タイプ）</em>を作成する必要があります。</p>
 <aside class="special"><p><strong>主な用語：</strong></p>
 <ul>
 <li><strong>Types（タイプ）:</strong> アシスタントNLU（自然言語理解）を構成して、ユーザー入力値から構造化データを抽出できます。</li>
@@ -102,7 +102,7 @@
 <li><strong>+（プラス記号）</strong>をクリックし、 <code>available_options</code> と入力して、 <strong>Enter</strong> キーを押します。</li>
 <li><code>available_options</code> をクリックしてオプションを開きます。</li>
 </ol>
-<p>タイプは情報のキーと値のペアとして構成されます。キーはタイプの名前で、値はそのキーの同義語です。 キーを定義すると、自動的に値として追加されます。</p>
+<p>タイプは情報のキーと値のペアとして構成されます。キーはタイプの名前で、<em>values（値）</em>はそのキーの同義語です。 キーを定義すると、自動的に値として追加されます。</p>
 <p>ユーザーが選択できる3つのオプションを追加するには、次の手順に従います:</p>
 <ol type="1" start="1">
 <li><strong>Add entries</strong> セクションまでスクロールします。</li>
@@ -123,7 +123,7 @@
 <p>次に、 <code>Fortune</code> シーンでスロットフィリングを構成する必要があります。 スロットフィリングロジックを構成するには、次の手順に従います:</p>
 <ol type="1" start="1">
 <li>左側のナビゲーションの <strong>Scenes</strong> で、 <strong>Fortune</strong> をクリックします。</li>
-<li><code>Fortune</code> シーンで、スロットフィリングのために <strong>+</strong>（<strong>プラス記号</strong>）をクリックします。</li>
+<li><code>Fortune</code> シーンで、<strong>Slot filling</strong> の  <strong>+</strong>（<strong>プラス記号</strong>）をクリックします。</li>
 <li>右側の <strong>Enter slot name</strong> テキストボックスで、スロット名として <code>chosenOptions</code> を追加します。</li>
 <li><strong>Select type</strong> ドロップダウンで、スロットタイプとして <code>available_options</code> を選択します。</li>
 <li><strong>This slot is required</strong> を選択します。</li>
@@ -147,8 +147,8 @@
 </ol>
 <p>これで、 <code>available_options</code> タイプがスロットに追加されました。これは、続行する前にユーザーから収集する必要がある情報（支援の選択肢）をアクションに通知します。 また、スロット内にプロンプトを設定しました。これは、ユーザーがシーンのスロットフィリングステージに到達したときにプロンプトキューに追加されます。</p>
 <p>スロットに <code>chosedOptions</code> という名前を付けた場合、 <strong>Customize slot value writeback</strong> フィールドは同じ名前（<code>$session.params.chosenOptions</code>）で更新されることに注意してください。 このパラメーターには、Actions Builder内およびクライアントライブラリを介してフルフィルメント内でその名前でアクセスできます。<br></p>
-<p><strong><code>scene.slots.status == &#34;FINAL&#34;</code></strong><strong> コンディションを設定します</strong></p>
-<p>スロットを追加すると、コンディション <code>scene.slots.status == &#34;FINAL&#34;</code> がコンディションリストに自動的に追加されます。</p>
+<h3 is-upgraded><strong><code>scene.slots.status == &#34;FINAL&#34;</code></strong><strong> コンディションを設定する</strong></h3>
+<p>スロットを追加すると、<em>condition（コンディション） </em><code>scene.slots.status == &#34;FINAL&#34;</code> がコンディションリストに自動的に追加されます。</p>
 <aside class="special"><p><strong>主な用語:</strong></p>
 <ul>
 <li><strong>Conditions（コンディション）</strong>: 満たすべき条件について、セッション、ユーザー、またはスロットのデータを確認できます。</li>
@@ -174,13 +174,13 @@
 <ol type="1" start="1">
 <li>上部のナビゲーションバーで、 <strong>Test</strong> をクリックします。</li>
 <li><strong>Input</strong> フィールドに <code>Talk to my test app</code> をクリックまたは入力して、 <strong>Enter</strong> キーを押します。</li>
-<li><strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。 （または、 <strong>Yes</strong> サジェストチップをクリックすることもできます。）</li>
+<li><strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。 （または、 <strong>Yes</strong> サジェスチョンチップをクリックすることもできます。）</li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/a899d45c542668f6.png"></p>
 <aside class="special"><p><strong>Note: </strong><code>Yes</code> と話しかけたり、クリックしたり、タイプしたときにアクションが入力を認識しないことを示すプロンプトが表示された場合は、必要なスロットを作成したことを確認してください。</p>
 </aside>
 <ol type="1" start="4">
-<li><code>dragon</code> とタイプするか話かけます。&#34;You picked dragon.&#34; というプロンプトが表示されるはずです。</li>
+<li><code>dragon</code> とタイプするか話かけます。<em>&#34;You picked dragon.&#34;</em> というプロンプトが表示されるはずです。</li>
 </ol>
 <p>次のセクションでは、ユーザーが選択できる各支援のプロンプトをカスタマイズします。</p>
 <h2 is-upgraded><strong>コンディションを使ってプロンプトをカスタマイズする</strong></h2>
@@ -208,7 +208,7 @@
 <li><strong>Save</strong> をクリックします。</li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/fd5cbb1d6cfe56d4.png"></p>
-<p>ここで、ユーザーが &#34;dragon&#34; または類似の音を発すると、アクションはその選択に基づいてフォチューンを提供します。 次に、残りの2つの選択を追加します。</p>
+<p>ここで、ユーザーが <em>&#34;dragon&#34;</em> または類似の音を発すると、アクションはその選択に基づいてフォチューンを提供します。 次に、残りの2つの選択を追加します。</p>
 <h3 is-upgraded><strong><code>translator</code></strong><strong> フォーチュンをカスタマイズする</strong></h3>
 <p>コンディションを追加し、ユーザーが &#34;translator&#34; を選択したときにプロンプトをカスタマイズするには、次の手順に従います:</p>
 <ol type="1" start="1">
@@ -258,7 +258,7 @@
 <ol type="1" start="1">
 <li>上部のナビゲーションバーで、 <strong>Test</strong> をクリックします。</li>
 <li><strong>Input</strong> フィールドに <code>Talk to my test app</code> と入力し、 <strong>Enter</strong> キーを押します。</li>
-<li><strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。 または、 <strong>Yes</strong> サジェストチップをクリックします。</li>
+<li><strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。 または、 <strong>Yes</strong> サジェスチョンチップをクリックします。</li>
 <li><code>Translator</code> とクリック、入力、または話しかけます。</li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/29e17f950bd0dd71.png"></p>
@@ -268,17 +268,17 @@
       </google-codelab-step>
     
       <google-codelab-step label="ゲームループの追加" duration="0">
-        <p>このセクションでは、ユーザーが別のオプションを選択して、選択後に別の運勢を聞くことができるようにアクションを構成します。 この変更は、ゲーム終了時のメッセージ &#34;Do you want to play again?&#34; に似ています。このループを構築するために、前のセクションで作成した <code>yes</code> および <code>no</code> インテントを再利用して、それらを <code>Again</code> という新しいシーンに追加しましょう。</p>
+        <p>このセクションでは、ユーザーが別のオプションを選択して、選択後に別の運勢を聞くことができるようにアクションを構成します。 この変更は、ゲーム終了時のメッセージ <em>&#34;Do you want to play again?&#34;</em> に似ています。このループを構築するために、前のセクションで作成した <code>yes</code> および <code>no</code> インテントを再利用して、それらを <code>Again</code> という新しいシーンに追加しましょう。</p>
 <h2 is-upgraded><strong><code>Again</code></strong><strong> シーンの作成</strong></h2>
 <p>このセクションでは、新しい <code>Again</code> シーンを作成し、別のオプションを選択するかどうかをユーザーに尋ねるプロンプトを追加します。</p>
 <p><code>Again</code> シーンを作成するには、次の手順に従います:</p>
 <ol type="1" start="1">
 <li>上部ナビゲーションの <strong>Develop</strong> をクリックします。</li>
 <li><strong>Scenes</strong> の下の <strong>+（プラス記号）</strong>をクリックします。</li>
-<li>もう一度入力して <strong>Enter</strong> キーを押します。</li>
+<li><code>Again</code> と入力して <strong>Enter</strong> キーを押します。</li>
 <li>左側のナビゲーションで、 <code>Again</code> シーンをクリックします。</li>
 <li><strong>On enter</strong> の横にある <strong>+（プラス記号）</strong>をクリックします。</li>
-<li><strong>Send prompts</strong> を選択し、次のプロンプトとサジェストチップを追加します:</li>
+<li><strong>Send prompts</strong> を選択し、次のプロンプトとサジェスチョンチップを追加します:</li>
 </ol>
 <pre><code>candidates:
   - first_simple:
@@ -313,13 +313,13 @@
 <ol type="1" start="1">
 <li>上部のナビゲーションバーで、 <strong>Test</strong> をクリックします。</li>
 <li> <strong>Input</strong> フィールドに <code>Talk to my test app</code> と入力し、 <strong>Enter</strong> キーを押します。</li>
-<li> <strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。または、 <strong>Yes</strong> サジェストチップをクリックします。</li>
+<li> <strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。または、 <strong>Yes</strong> サジェスチョンチップをクリックします。</li>
 <li><code>dragon</code> をクリック、入力、または話しかけます。</li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/b299e9fed9aedb69.png"></p>
 <p>ドラゴンのオプションと <code>Again</code> のプロンプトのフォーチュンを受け取るはずです。</p>
 <h2 is-upgraded><strong>インテントと </strong><strong><code>Again</code></strong><strong> シーンへの遷移を追加</strong></h2>
-<p>このセクションでは、 <code>yes</code> および <code>no</code> インテントを <code>Again</code> シーンに追加して、ユーザーが新しいオプションを選択するかどうかをアクションが理解できるようにします。  <code>yes</code> および <code>no</code> インテントに適切な遷移も追加します。 <code>yes</code> のインテントは <code>Fortune</code> シーンに移行し、 <code>no</code> のインテントはシステムシーンに移行します。</p>
+<p>このセクションでは、 <code>yes</code> および <code>no</code> インテントを <code>Again</code> シーンに追加して、ユーザーが新しいオプションを選択するかどうかをアクションが理解できるようにします。  <code>yes</code> および <code>no</code> インテントに適切な遷移も追加します。 <code>yes</code> のインテントは <code>Fortune</code> シーンに移行し、 <code>no</code> のインテントは <code>End conversation</code> システムシーンに移行します。</p>
 <p><code>Again</code> シーンにインテントとトランジションを追加するには、次の手順に従います:</p>
 <ol type="1" start="1">
 <li>上部ナビゲーションの <strong>Develop</strong> をクリックします。</li>
@@ -350,7 +350,7 @@
 <ol type="1" start="1">
 <li>上部のナビゲーションバーで、 <strong>Test</strong> をクリックします。</li>
 <li> <strong>Input</strong> フィールドに <code>Talk to my test app</code> と入力し、 <strong>Enter</strong> キーを押します。</li>
-<li> <strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。 または、 <strong>Yes</strong> サジェストチップをクリックします。</li>
+<li> <strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。 または、 <strong>Yes</strong> サジェスチョンチップをクリックします。</li>
 <li>いずれかのオプションをクリック、入力、または発声します。</li>
 <li> <strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。</li>
 </ol>
@@ -361,17 +361,17 @@
 <li>いずれかのオプションをクリック、入力、または発声します。</li>
 <li> Input フィールドに <code>No</code> と入力し、 <strong>Enter</strong> キーを押します。</li>
 </ol>
-<p><code>End conversation</code> というプロンプトが表示されます: <em>&#34;It pleases me that you are satisfied with your choice. Best of luck on your quest. Farewell.&#34;</em></p>
+<p><code>End conversation</code> プロンプトとして以下が表示されるはずです: <em>&#34;It pleases me that you are satisfied with your choice. Best of luck on your quest. Farewell.&#34;</em></p>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="サポートパスの追加" duration="0">
         <p>これで、ほとんどのユーザーがアクションで取るメインパスが構築されました。 ただし、ユーザーは <code>Fortune</code> シーンのプロンプト <em>&#34;What do you choose to help you on your quest, a dragon, a translator, or a compass?&#34;</em> で提供されない選択肢で応答してくることがあります。</p>
-<p>このセクションでは、ユーザーが &#34;magic&#34;、&#34;money&#34;、&#34;horse&#34;、または &#34;phone&#34; をいつ選択するかを理解し、ユーザーに選択時に元の3つの選択肢のいずれかから選択するように再度促すようにアクションを構成します。 このロジックを構成するには、これらの他の選択肢を含む新しい <code>Type</code> と、ユーザーがこれらのオプションの1つを言うと一致する新しいインテント <code>other_option</code> を作成する必要があります。 また、 <code>other_option</code> インテント内のトレーニングフレーズにアノテーションを付けて、インテントパラメータを識別および抽出する必要があります。</p>
+<p>このセクションでは、ユーザーが &#34;magic&#34;、&#34;money&#34;、&#34;horse&#34;、または &#34;phone&#34; をいつ選択するかを理解し、ユーザーに選択時に元の3つの選択肢のいずれかから選択するように再度促すようにアクションを構成します。 このロジックを構成するには、これらの他の選択肢を含む新しい <code>type</code> と、ユーザーがこれらのオプションの1つを言うと一致する新しいインテント <code>other_option</code> を作成する必要があります。 また、 <code>other_option</code> インテント内のトレーニングフレーズにアノテーションを付けて、インテントパラメータを識別および抽出する必要があります。</p>
 <aside class="special"><p><strong>主な用語：</strong></p>
 <ul>
-<li><strong>Intent parameters（インテントパラメータ）：</strong>ユーザー入力値から抽出する型付きデータ（特定の単語またはフレーズ）。 パラメータを作成するには、インテント内のトレーニングフレーズにアノテーションを付けます。</li>
+<li><strong>Intent parameters（インテントパラメータ）：</strong>ユーザー入力値から抽出する型付きデータ（特定の単語またはフレーズ）。 パラメータを作成するには、インテント内のトレーニングフレーズに <em>annotation（アノテーション）</em> を付けます。</li>
 <li><strong>Annotation（アノテーション）：</strong>トレーニングフレーズから抽出するタイプを指定するプロセス。 タイプを含むトレーニングフレーズを作成する前にタイプを設定すると、自動的に指定されます。</li>
 </ul>
 </aside>
@@ -412,8 +412,8 @@
 <p><code>other_option</code> インテントを作成して構成するには、次の手順に従います:</p>
 <ol type="1" start="1">
 <li><strong>Intents</strong> の下の <strong>+（プラス記号）</strong> をクリックします。</li>
-<li><strong>other_option</strong> と入力し、 <strong>Enter</strong> キーを押します。</li>
-<li><strong>other_option</strong> をクリックしてウィンドウを開きます。</li>
+<li><code>other_option</code> と入力し、 <strong>Enter</strong> キーを押します。</li>
+<li><strong><code>other_option</code></strong> をクリックしてウィンドウを開きます。</li>
 <li>次のトレーニングフレーズを追加し、それぞれの後に <strong>Enter</strong> キーを押します:</li>
 </ol>
 <ul>
@@ -456,7 +456,7 @@
 <ol type="1" start="1">
 <li>上部のナビゲーションバーで、 <strong>Test</strong> をクリックします。</li>
 <li>入力フィールドに <code>Talk to my test app</code> と入力し、<strong> Enter</strong> キーを押します。</li>
-<li><strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。または、<strong>Yes</strong> サジェストチップをクリックします。</li>
+<li><strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。または、<strong>Yes</strong> サジェスチョンチップをクリックします。</li>
 <li><strong>Input</strong> フィールドに <code>magic</code> と入力し、 <strong>Enter</strong> キーを押します。</li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/3a42c33eca435f32.png"></p>
@@ -466,7 +466,7 @@
 <p><code>unavailable_options</code> ハンドラーを追加するには、次の手順に従います:</p>
 <ol type="1" start="1">
 <li>上部ナビゲーションの <strong>Develop</strong> をクリックします。</li>
-<li><code>Fortune</code> シーンをクリックします。</li>
+<li><strong><code>Fortune</code></strong> シーンをクリックします。</li>
 <li><strong>Custom intent handling</strong> で、 <strong>When other_option is matched</strong> をクリックしてウィンドウを開きます。</li>
 <li><strong>Send prompts</strong> をクリアします。</li>
 <li><strong>Call your webhook</strong> を選択します。</li>
@@ -516,11 +516,11 @@ optionsNeedA.add(&#39;horse&#39;).add(&#39;phone&#39;);</code></pre>
 <ol type="1" start="1">
 <li>上部のナビゲーションバーで、 <strong>Test</strong> をクリックします。</li>
 <li>入力フィールドで &#34;Talk to my test app&#34; をクリックまたは入力して、 <strong>Enter</strong> キーを押します。</li>
-<li><strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。または、 <strong>Yes</strong> サジェストチップをクリックします。</li>
+<li><strong>Input</strong> フィールドに <code>Yes</code> と入力し、 <strong>Enter</strong> キーを押します。または、 <strong>Yes</strong> サジェスチョンチップをクリックします。</li>
 <li>入力フィールドに <code>magic</code> と入力し、 <strong>Enter</strong> キーを押します。次に、 <strong>Input</strong> フィールドに <code>horse</code> と入力し、 <strong>Enter</strong> キーを押します。</li>
 </ol>
 <p class="image-container"><img style="width: 601.70px" src="img/54ee24c5c3c56e.png"></p>
-<p>アクションは、&#34;horse&#34; の選択の前に &#34;a&#34; を追加し、 &#34;magic&#34; の選択の &#34;a&#34; の記事なしでプロンプトを作成するはずです。</p>
+<p>アクションは、&#34;horse&#34; の選択の前に &#34;a&#34; を追加し、 &#34;magic&#34; の選択の &#34;a&#34; の冠詞なしでプロンプトを作成するはずです。</p>
 
 
       </google-codelab-step>
@@ -530,7 +530,6 @@ optionsNeedA.add(&#39;horse&#39;).add(&#39;phone&#39;);</code></pre>
 <p>これで、Googleアシスタント向けアクションを開発するために必要な中級スキルについて学ぶことができました。</p>
 <h2 class="checklist" is-upgraded><strong>What we&#39;ve covered</strong></h2>
 <ul class="checklist">
-<li>アクションシミュレータでアクションをテストする方法。</li>
 <li><a href="https://github.com/actions-on-google/assistant-conversation-nodejs" target="_blank">Node.jsのフルフィルメントライブラリ</a> を使用して会話型アクションを開発する方法</li>
 <li>スロットを使用してユーザーからデータを収集する方法</li>
 <li>コンディションを使用してシーンにロジックを追加する方法</li>
@@ -538,13 +537,14 @@ optionsNeedA.add(&#39;horse&#39;).add(&#39;phone&#39;);</code></pre>
 <li>サポートパスを追加する方法</li>
 </ul>
 <h2 is-upgraded><strong>Actions on Google について</strong><strong>もっと知る</strong></h2>
-<p>Actions on Google についてさらに学ぶために、以下の資料についても参考にすることができます:</p>
+<p>Googleアシスタント向けアクションの構築についてさらに学ぶために、以下の資料についても参考にすることができます:</p>
 <ul>
-<li><a href="https://developers.google.com/assistant" target="_blank">The official documentation site</a>: Actions on Googleの公式ドキュメントサイトです。</li>
-<li><a href="https://github.com/actions-on-google/" target="_blank">Actions on Google GitHub page</a>: サンプルコードとライブラリがあります。</li>
-<li><a href="https://www.reddit.com/r/GoogleAssistantDev/" target="_blank">The official Reddit community</a>: Google アシスタントを利用するデベロッパーコミュニティです。</li>
+<li>Googleアシスタント向けアクションの開発のための <a href="https://developers.google.com/assistant" target="_blank">ドキュメント</a>。</li>
+<li>サンプルコードやライブラリがある <a href="https://github.com/actions-on-google/" target="_blank">Actions on Google GitHub ページ</a>。</li>
+<li>Googleアシスタントを使って仕事をしている開発者向けの公式 <a href="https://www.reddit.com/r/GoogleAssistantDev/" target="_blank">Reddit コミュニティ</a>。</li>
+<li>会話型アクションに関するベストプラクティスやガイドラインが掲載されている <a href="https://designguidelines.withgoogle.com/conversation/" target="_blank">Conversation design guideline</a>。</li>
 </ul>
-<p>Twitter <a href="https://twitter.com/ActionsOnGoogle" target="_blank">@ActionsOnGoogle</a> をフォローしてください。また、あなたが開発したものを <a href="https://twitter.com/hashtag/AoGDevs?src=hash" target="_blank">#AoGDevs</a> および <a href="https://twitter.com/hashtag/AoGDevsJa?src=hash" target="_blank">#AoGDevsJa</a> にてシェアしてください。</p>
+<p>最新のアナウンスを購読するために、Twitter <a href="https://twitter.com/ActionsOnGoogle" target="_blank">@ActionsOnGoogle</a> をフォローしてください。また、あなたが開発したものを <a href="https://twitter.com/hashtag/AoGDevs?src=hash" target="_blank">#AoGDevs</a> および <a href="https://twitter.com/hashtag/AoGDevsJa?src=hash" target="_blank">#AoGDevsJa</a> にてシェアしてください。</p>
 
 
       </google-codelab-step>
