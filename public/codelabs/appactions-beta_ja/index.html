@@ -1,0 +1,333 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Extend an Android app to Google Assistant with App Actions (Beta) [Japanese]</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-790299-29"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="appactions-beta_ja"
+                  title="Extend an Android app to Google Assistant with App Actions (Beta) [Japanese]"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Overview" duration="0">
+        <p>App Actionsを使用すると、ユーザーは Google アシスタントから特定のアプリ機能を直接起動して、Android アプリの範囲を拡大できます。 Android デベロッパーは Capabilities を実装できます。これにより、ユーザーが利用できる機能のタイプと、これらのリクエストをどのように処理したいかを Google アシスタントに知らせることができます。</p>
+<p>最初の <a href="https://codelabs.developers.google.com/codelabs/appactions/" target="_blank">App Actions コードラボ</a> では、 <a href="https://developers.google.com/assistant/app/reference/built-in-intents" target="_blank">組み込みインテント (BII)</a> の健康とフィットネスを実装することにより、Google アシスタントをサンプル フィットネス アプリに拡張する方法を学びました。 BII は、ユーザーがアシスタントに実行を依頼することが多いタスクの種類を表すカテゴリに編成されます。</p>
+<aside class="special"><p><strong>Key term:</strong></p>
+<p>アシスタントの組み込みインテント (略して BII) は、ユーザーが実行したい特定の種類の機能に対する事前定義されたトリガーです。 Google は、BII がその特定の意図に関連するさまざまなクエリを理解するための言語モデルを構築および維持しています。</p>
+</aside>
+<p>このコードラボでは、「<a href="https://developers.google.com/assistant/app/reference/built-in-intents/common" target="_blank">Common BII カテゴリ</a>」の BII を使用してアプリにApp Actionsを追加する方法を学習します。これは、ほぼすべての Android アプリが実行できる一般的なアプリ タスクを表します。</p>
+<p>このコードラボでは、App Actionsを使用して開発するための中級レベルの概念について説明します。 Android アプリの開発と Android インテントの実装の経験が必要です。 </p>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>このコードラボでは、ベータ版リリース段階の機能について説明します。アプリ アクションの実稼働実装を維持している場合は、 <a href="https://codelabs.developers.google.com/codelabs/appactions" target="_blank">Actions.xml コードラボ</a> を参照してください。</p>
+</aside>
+<h2 is-upgraded>何を作りますか？</h2>
+<p>このコードラボでは、2 つの <a href="https://developers.google.com/assistant/app/reference/built-in-intents/common" target="_blank">Common BII</a> をサンプルの To-do リスト アプリに追加して、ユーザーがアシスタントに次のことを行えるようにします。</p>
+<ul>
+<li><a href="https://developers.google.com/assistant/app/reference/built-in-intents/common/open-app-feature" target="_blank"><code>actions.intent.OPEN_APP_FEATURE</code></a> BII を使用して、アプリ内の機能に移動します。</li>
+<li><a href="https://developers.google.com/assistant/app/reference/built-in-intents/common/get-thing" target="_blank"><code>actions.intent.GET_THING</code></a> BII でアプリ内検索を使用してコンテンツを検索します。</li>
+</ul>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>検索機能を備えたアプリは、<code>actions.intent.GET_THING</code> BII を実装するために必要です。App Actionsの <a href="https://developers.google.com/assistant/app/deployment" target="_blank">deployment requirements</a> の詳細をご覧ください。</p>
+</aside>
+<p class="image-container"><img style="width: 601.70px" src="img/84cd061df13b1dc4.png"></p>
+<p>Figure. Google アシスタントがアプリでアクティブなタスクを表示する 3 つのプログレッシブ画面。</p>
+<h2 class="checklist" is-upgraded>What you&#39;ll learn</h2>
+<p>Common カテゴリ BII を使用して、アシスタントをほとんどの Android アプリに拡張する方法を学習します。また、Android Studio 用の <a href="https://developers.google.com/assistant/app/test-tool" target="_blank">Google Assistant plugin</a> を使用して一般的な BII をテストする方法も学習します。</p>
+<h2 is-upgraded>必要なもの</h2>
+<ul>
+<li>git がインストールされた状態でシェル コマンドを実行するためのターミナル。</li>
+<li><a href="https://developer.android.com/studio/releases" target="_blank">Android Studio</a> の最新の安定版リリース。</li>
+<li><a href="https://play.google.com/apps/publish/" target="_blank">Google Play Console</a> にアクセスできる Google アカウント。</li>
+<li>アクションをテストするために Google Play ストアにインターネット アクセスできる物理的または仮想的な Android デバイス。</li>
+<li>テストデバイス上の Android Studio、Google Play Console、Google アプリと Google アシスタント アプリに、同じ <a href="https://developer.android.com/studio/intro#sign-in" target="_blank">Google アカウントでサインイン</a> する必要があります。</li>
+</ul>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>このコードラボで説明されているアプリ アクションは、限られた数のロケールで Google アシスタントを使用してテストできます。ロケールに基づいて使用可能なインテントを見つけるには、<a href="https://developers.google.com/assistant/app/reference/built-in-intents/common" target="_blank">Common BII</a> リファレンス ドキュメントを参照してください。</p>
+</aside>
+<p>この Codelab では、Android デバイス (物理または仮想) を使用してアクションをテストします。物理デバイスを使用している場合は、それがローカル開発マシンに接続されていることを確認してください。また、同じ Google アカウントを使用して、デバイスで <a href="https://developer.android.com/studio/intro#sign-in" target="_blank">Google アプリにサインイン</a> し、Android Studio にサインインする必要があります。また、デバイスには <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.googleassistant&hl=en_US&gl=US" target="_blank">Google アシスタント アプリ</a> がインストールされている必要があります。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="仕組みを理解する" duration="0">
+        <p>App Actions は、ユーザーを Google アシスタントから Android アプリに接続します。しかし、それらどのように機能しますか？</p>
+<p>ユーザーがアシスタントにアプリの使用を指示すると、アシスタントはアプリに登録されている App Actions を <a href="https://developers.google.com/assistant/app/action-schema" target="_blank"><code>shortcuts.xml</code></a> ファイルから探します。このファイルには、アシスタントの組み込みインテントまたはカスタム インテントを Android インテントまたはディープ リンクにリンクするアプリの機能が含まれています。</p>
+<aside class="special"><p><strong>Key term:</strong></p>
+<p>Capabilities は、ユーザーがアプリを起動して特定のタスクに直接ジャンプするために実行できるアクションのタイプを宣言するために、<code>shortcuts.xml</code> で定義するテンプレートです。詳細については、 <a href="https://developer.android.com/guide/topics/ui/shortcuts/adding-capabilities" target="_blank">Android documentation for capabilities</a> を参照してください。</p>
+</aside>
+<p>ユーザーがアシスタントにクエリを発すると、アシスタントはユーザーの入力を解析し、App Actions インテントと照合します (このコードラボでは、BII になります)。アシスタントは、Android アプリの <code>shortcuts.xml</code> ファイルからサポートされている機能を認識しています。インテントが一致すると、その BII の機能には、そのリクエストをどのように遂行したいかが含まれます。このコードラボでは、フルフィルメントはアプリでアクティビティを起動する Android インテントです。</p>
+<p>次の図は、このアシスタント フローを示しています。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/f3ba5f12c7a77c5f.png"></p>
+<p>Figure 2. Google アシスタントが音声クエリを処理する方法を説明するフロー。</p>
+<p><code>shortcuts.xml</code> プロジェクト ファイルには、App Action ごとに次の情報が含まれています。</p>
+<ul>
+<li>App Action が使用する組み込みインテントまたはカスタム インテント</li>
+<li>ユーザーに提供する必要がある Android アクティビティまたはディープリンク</li>
+<li>組み込みインテントのパラメータが、ユーザーがアシスタントに提供した情報にどのようにマッピングされるか</li>
+</ul>
+<p>次に、Android アクティビティは、提供された Android インテントまたはディープ リンクをフィルタリングして処理し、ユーザーに必要な機能を提供します。その結果、アシスタントがユーザーのクエリに応答してアプリの機能を呼び出すというユーザー エクスペリエンスが実現します。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="開発環境を準備する" duration="0">
+        <p>このコードラボでは、Android 用の To-do リスト サンプル アプリを使用します。このサンプル アプリでは、To Do リストにアイテムを追加したり、カテゴリでアイテムを検索したり、完了したタスクに関する情報を表示したりできます。</p>
+<h2 is-upgraded>ベースのファイルをダウンロードする</h2>
+<p>次のコマンドを実行して、サンプル アプリの <a href="https://github.com/actions-on-google/appactions-common-biis-kotlin/tree/codelab-start" target="_blank">GitHub リポジトリ</a> を複製します。</p>
+<pre>git clone --branch codelab-start-beta https://github.com/actions-on-google/appactions-common-biis-kotlin.git</pre>
+<p>リポジトリのクローンを作成したら、次の手順に従って Android Studio で開きます。</p>
+<ol type="1" start="1">
+<li><strong>Welcome to Android Studio </strong>ダイアログで、 <strong>Import project</strong> をクリックします。</li>
+<li>リポジトリを複製したフォルダーを見つけて選択します。</li>
+</ol>
+<p>完成したコードラボを表すアプリのバージョンを確認するには、 <code>--branch master</code> フラグを使用してサンプル アプリ リポジトリを複製します。</p>
+<h2 is-upgraded>テストができるようにAndroidアプリケーションIDを変更する</h2>
+<p>このコードラボの後半では、<a href="https://developers.google.com/assistant/app/test-tool" target="_blank">Google Assistant plugin</a> を使用して、物理デバイスまたは仮想デバイスでのアクションをテストします。テスト ツールを実行するには、まずアプリを Google Play Console のプロジェクトにアップロードする必要があります。アプリを Play Console にアップロードする際の「パッケージ名の重複」エラーを回避するには、サンプル アプリの <code>applicationId</code> を一意のものに変更します (Google Play では、同じ <code>applicationId</code> を持つ 2 つのアプリをアップロードすることはできません)。</p>
+<p><code>app/build.gradle</code> で、<code>applicationId</code> &#39;com.example.myapp&#39; の値を &#39;com.codelabs.myname&#39; などの一意の ID に更新します。 <code>applicationId</code> の詳細については、<a href="https://developer.android.com/studio/build/application-id" target="_blank">Set the application ID</a> を参照してください。次のスニペットは、更新された <code>applicationId</code> を示しています。</p>
+<h3 is-upgraded><code>bundle.gradle</code></h3>
+<pre><code>android {
+...
+    defaultConfig {
+        // This ID uniquely identifies your app on the device and in Google Play Store
+        applicationId &#34;com.example.myapp&#34;
+    ...
+    }
+}</code></pre>
+<aside class="warning"><p><strong>Note</strong>: <code>applicationId</code> を更新した後、「Gradle files have changed since last project sync...」というラベルの付いた黄色の警告ボックスが IDE に表示される場合があります。その場合は、ボックス内の <strong>Sync Now</strong> をクリックして、アプリを Play Console にアップロードするときに発生する可能性のある問題を回避してください。</p>
+</aside>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>この <code>applicationId</code> にアクセスできるようにしておいてください。このコードラボの後半で使用します。</p>
+</aside>
+<h2 is-upgraded>デバイス上でアプリをテストする</h2>
+<p>アプリにさらに変更を加える前に、サンプル アプリで何ができるかを理解しておくと役立ちます。エミュレーターでアプリを実行するには、次の手順に従います。</p>
+<ol type="1" start="1">
+<li>Android Studio で、<strong>Run -&gt; Run app</strong> を選択するか、ツールバーの <strong>Run </strong><img style="width: 32.00px" src="img/acabcb8f8634af20.png"> をクリックします。</li>
+<li><strong>Select Deployment Target</strong> ダイアログで、デバイスを選択して <strong>OK</strong> をクリックします。推奨される OS バージョンは Android 10 (API レベル 30) 以上ですが、アクションは <a href="https://support.google.com/assistant/answer/7172657?co=GENIE.Platform%3DAndroid&hl=en&oco=0" target="_blank">Android 5 (API レベル 21)</a> に戻ってデバイスで実行できます。</li>
+<li><strong>Home</strong> ボタンを長押ししてアシスタントをセットアップし、その動作を確認します。デバイスでアシスタントにサインインしていない場合は、サインインする必要があります。</li>
+</ol>
+<p>Android 仮想デバイスの詳細については、 <a href="https://developer.android.com/studio/run/managing-avds" target="_blank">Create and manage virtual devices</a> を参照してください。</p>
+<p class="image-container"><img style="width: 338.87px" src="img/5cd3a40341535389.gif"></p>
+<p>Figure 3. To-do リストのサンプル アプリを示すアニメーション。</p>
+<p>アプリを簡単に調べて、何ができるかを確認します。プラス アイコンをタップすると、新しいタスク アイテムが作成され、右上のメニュー アイテムを使用して、タスク アイテムを完了ステータスで検索およびフィルタリングできます。</p>
+<h2 is-upgraded>Play Consoleにアップロードする</h2>
+<p>アプリを Google Play Console のプロジェクトにアップロードすることは、Android Studio で <a href="https://developers.google.com/assistant/app/test-tool" target="_blank">Google Assisant plugin</a> を使用するための前提条件です。 Android Studio でアプリをビルドし、内部リリース ドラフトとして Play Console にアップロードします。</p>
+<ol type="1" start="1">
+<li><strong>Build &gt; Generate Signed Bundle / APK</strong> に行きます。</li>
+<li><strong>Android App Bundle</strong> を選択して <strong>Next</strong> をクリックします。</li>
+<li><a href="https://developer.android.com/studio/publish/app-signing" target="_blank">sign your app</a> の詳細を編集して、<strong>Next</strong> をクリックします。</li>
+<li><strong>prodRelease</strong> ビルド変数を選択して、<strong>Finish</strong> をクリックします。</li>
+</ol>
+<p><a href="https://play.google.com/apps/publish/" target="_blank">Google Play Console</a> で、次の手順に従って、作成したばかりの App Bundle を新しいアプリとしてアップロードします。</p>
+<ol type="1" start="1">
+<li><strong>All apps</strong> ページ上で、<strong>Create app</strong> をクリックします。</li>
+<li>あなたが望む任意の名前を入力して、<strong>Create app</strong> をクリックします。このコードラボでは、アプリ作成の際に全てのアプリ情報は入力する必要はありません。</li>
+<li>サイドバーメニューから、<strong>Testing</strong> に行き、<strong>Internal testing</strong> ページを見つけます</li>
+<li><strong>Internal testing</strong> ページ上の <strong>Create new release</strong> をクリックします。</li>
+<li>Google Play による App 署名に同意するために、 <strong>Continue</strong> をクリックします。</li>
+<li><strong>App bundles and APKs</strong> パネル内で、先に生成した AAB ファイルをアップロードします（<code>app/prod/release</code> ディレクトリにあるでしょう）。<strong>Save</strong> をクリックします。</li>
+</ol>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>アプリを Play Console にアップロードする際に問題が発生した場合は、App Actions の <a href="https://developers.google.com/assistant/app/troubleshoot" target="_blank">troubleshooting guide</a> を参照してください。</p>
+</aside>
+<h2 is-upgraded>テストプラグインをインストールする</h2>
+<p><a href="https://developers.google.com/assistant/app/test-tool" target="_blank">Google Assistant plugin</a> を使用すると、テスト デバイスでApp Actionsをテストできます。テスト ツールがまだない場合は、次の手順に従ってインストールします。</p>
+<ol type="1" start="1">
+<li><strong>File &gt; Settings</strong> に行きます (MacOS の場合は、<strong>Android Studio &gt; Preferences</strong> です)。</li>
+<li>Plugins セクション内で <strong>Marketplace</strong> に行き、&#34;Google Assistant&#34; で検索します。手動で<a href="https://plugins.jetbrains.com/plugin/16739-google-assistant/versions" target="_blank">ダウンロード</a>してインストールすることも可能です。</li>
+</ol>
+<ul>
+<li>もし <strong>Marketplace</strong> 上でプラグインが見つけられない場合は、手動で <a href="https://dl.google.com/google-assistant-plugin/latest/google-assistant-plugin.zip" target="_blank">プラグインをダウンロード</a> して、<a href="https://www.jetbrains.com/help/idea/managing-plugins.html#install_plugin_from_disk" target="_blank">Install the plugin from disk</a> の指示に従ってください。</li>
+</ul>
+<ol type="1" start="3">
+<li>ツールをインストールして、Android Studioを再起動します。</li>
+</ol>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>テスト プラグインは、Android デバイスの Google アプリを介してアシスタントに情報を送信します。</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Get Thing BII capabilityを追加する" duration="0">
+        <p><a href="https://developers.google.com/assistant/app/reference/built-in-intents/common/get-thing" target="_blank"><code>actions.intent.GET_THING</code></a> BII は、アプリ内検索機能を Google アシスタントに拡張します。このステップでは、<code>GET_THING</code> BII を実装してテストし、ユーザーがサンプル アプリで特定のタスクを検索できるようにします。</p>
+<aside class="special"><p><strong>Tip:</strong></p>
+<p><code>GET_THING</code> BII は、アプリのデフォルトのアプリ内検索機能を使用してコンテンツまたはエンティティを検索するために使用されます。 <code>thing.name</code> インテント パラメーターを使用してコンテンツまたはエンティティ名を検索条件に入力し、最も関連性の高い検索結果をユーザーに表示します。</p>
+</aside>
+<h2 is-upgraded>Get Thing capabilityを定義する</h2>
+<p>検索関連のApp Actionsの最中に、アシスタントはユーザー クエリから検索語を抽出して <code>thing.name</code> BII パラメータに入れ、その値を Android アプリケーションに渡します。</p>
+<p><code>GET_THING</code> BII をアプリに追加するには、<code>app/src/main/res/xml</code> サンプル プロジェクト ディレクトリにある <code>shortcuts.xml</code> を更新し、最上位の <code><shortcuts></code> タグ内に <code><capability></code> 要素を追加します:</p>
+<h3 is-upgraded>shortcuts.xml</h3>
+<pre><code>&lt;shortcuts ....&gt;
+    &lt;capability android:name=&#34;actions.intent.GET_THING&#34;&gt;
+        &lt;intent
+            android:action=&#34;android.intent.action.VIEW&#34;
+            android:targetPackage=&#34;com.yourApplicationId.appaction&#34;
+            android:targetClass=&#34;com.example.android.architecture.blueprints.todoapp.tasks.TasksActivity&#34;&gt;
+            &lt;parameter
+                android:name=&#34;thing.name&#34;
+                android:key=&#34;q&#34;/&gt;
+        &lt;/intent&gt;
+    &lt;/capability&gt;
+&lt;/shortcuts&gt;</code></pre>
+<p>上記の設定内容は、以下となります。</p>
+<ol type="1" start="1">
+<li>アプリが <code>GET_THING</code> BII に応答することを宣言します。</li>
+<li>その BII に応答してアプリを起動する Android インテントを構築する方法を指定します。</li>
+</ol>
+<ul>
+<li>Activity は、<code>targetPackage</code> と <code>targetClass</code> を使用して識別されます。</li>
+<li>BII パラメータ <code>thing.name</code> は、<code>q</code> という名前のインテント <a href="https://developer.android.com/reference/android/content/Intent#intent-structure" target="_blank">エクストラ</a>にマップされます。</li>
+</ul>
+<p>名前付きアクティビティは、アプリのマニフェストに存在し、エクスポートされている必要があります。</p>
+<p>提供された Android アプリケーションには<a href="https://developer.android.com/guide/topics/ui/shortcuts/creating-shortcuts#static" target="_blank">メタデータ</a>が含まれているため、AndroidManifest は<code>shortcuts.xml</code> ファイルを認識します。</p>
+<pre><code>&lt;meta-data
+   android:name=&#34;android.app.shortcuts&#34;
+   android:resource=&#34;@xml/shortcuts&#34; /&gt;</code></pre>
+<h2 is-upgraded>App Actionをテストする</h2>
+<p>アシスタントからあなたのアプリにてアプリ内検索をテストするために、以下の手順に従います。</p>
+<ol type="1" start="1">
+<li>Androidデバイスが接続されていることを確認します。</li>
+<li><strong>Tools &gt; Google Assistant &gt; App Actions Test Tool</strong> に行きます。</li>
+<li><strong>App name</strong> と <strong>locale</strong> のデフォルト値を受け入れるために、<strong>Create Preview</strong> をクリックします。</li>
+<li>ツールが BII の選択と構成を求める最初のステップで、<code>actions.intent.GET_THING</code> を選択します。<code>name</code> の値を <code>running shoes</code> から <code>milk</code> に変更します。</li>
+<li><strong>Run App Action</strong> をクリックします。</li>
+</ol>
+<p>このテストでは、<code>GET_THING</code> BII は <code>name</code> 属性を使用して、「milk」を含むタスクのアプリを検索します。前のApp Actionと同様に、テスト ツールを使用してアクションをテストするか、テスト デバイスで「Hey Google, search for cake mix in Task List」などの検索フレーズを発声するだけです。</p>
+<aside class="special"><p><strong>Tip:</strong></p>
+<p>テスト ツールの実行中に問題が発生した場合は、<a href="https://developers.google.com/assistant/app/troubleshoot" target="_blank">troubleshooting guide</a> を確認してください。</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Open app feature BII capabilityを追加する" duration="0">
+        <p>このステップでは、<a href="https://developers.google.com/assistant/app/reference/built-in-intents/common/open-app-feature" target="_blank">Open app feature BII</a> を実装し、ユーザーがアシスタントを使用してアクティブなタスクと完了したタスクを表示できるようにします。これを行うには、capalibity がトリガーされる方法、パラメーターが渡される方法、および呼び出す Android インテントに関する情報を含む <code>shortcuts.xml</code> の capability を完成させます。このコードラボでは、<code>OPEN_APP_FEATURE</code> BII を使用します。この BII を実装したら、デバイスでアクションをテストします。</p>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>この BII は、アプリの機能を起動します。このインテントは、ユーザーがアプリ内の機能に移動するのに特に役立ちます。これらの機能は、他の方法では見つけるのが難しいか、複数のタップが必要になる場合があります。機能パラメータには <a href="https://developers.google.com/assistant/app/action-schema#inline-inventory" target="_blank">inline inventory</a> を指定する必要があります。</p>
+</aside>
+<h2 is-upgraded>Open app feature capabilityを追加する</h2>
+<p>Get Thing Capability 要素の下に、<code>shortcuts.xml</code> 内で Open app 機能のための2番目の capability を追加します。</p>
+<h3 is-upgraded>shortcuts.xml</h3>
+<pre><code>&lt;capability android:name=&#34;actions.intent.OPEN_APP_FEATURE&#34;&gt;
+   &lt;intent
+       android:action=&#34;android.intent.action.VIEW&#34;
+       android:targetPackage=&#34;yourApplicationId&#34;
+       android:targetClass=&#34;com.example.android.architecture.blueprints.todoapp.tasks.TasksActivity&#34;&gt;
+       &lt;parameter
+           android:name=&#34;feature&#34;
+           android:key=&#34;feature&#34;/&gt;
+   &lt;/intent&gt;
+&lt;/capability&gt;</code></pre>
+<p>この capability は、Open app 機能の BII と Android インテントを一緒にマップするため、Open app 機能がトリガーされると、Android インテントがトリガーされます。</p>
+<p>Android インテントをトリガーする前に、サポートされているパラメーターがユーザーの入力から引き出されます。 <code>OPEN_APP_FEATURE</code> BII は、ユーザー クエリから抽出されたアプリの機能を表す 1 つのパラメーター <code>feature</code> をサポートします。このアプリケーションがサポートする機能には、アクティブなタスクと完了したタスクの 2 つのタイプがあります。これらの機能により、ユーザーはタスクのリストのフィルター処理されたビューでアプリを開くことができます。これらの機能をサポートするには、<a href="https://developers.google.com/assistant/app/action-schema#inline-inventory" target="_blank">inline inventory</a> を使用する必要があります。</p>
+<aside class="special"><p><strong>Key term:</strong></p>
+<p>インライン インベントリは、アプリが理解するエンティティのセットをインライン インベントリをサポートする BII パラメータに提供することにより、BII のエンティティ抽出をガイドします。詳細については、<a href="https://developers.google.com/assistant/app/action-schema#inline-inventory" target="_blank">inline inventory for App Actions</a> を参照してください。</p>
+</aside>
+<h2 is-upgraded>インラインインベントリを使ってインテントパラメータを受け取る</h2>
+<p>インテント パラメーターは、ユーザー クエリから抽出された要素を表します。たとえば、ユーザーが「Hey Google, order a pizza from ExampleApp」のように言うと、アシスタントは「pizza」を <code>food.item</code> <a href="https://schema.org/Menu" target="_blank">schema.org</a> インテント パラメータに抽出し、そのパラメータをアクションに渡して処理します。</p>
+<p>Open app feature BII は、ユーザー クエリから抽出されたアプリ機能を表す 1 つのパラメーター <code>feature</code> をサポートします。このパラメータには <a href="https://developers.google.com/assistant/app/action-schema#inline-inventory" target="_blank">インライン インベントリ</a> が必要です。これにより、アシスタントはパラメータ値と一致する一連のサポートされているアプリ機能名を提供します。</p>
+<p><code>feature</code> インテント パラメーターを処理するには、Open app feature capability の上に、次のコードを使用して、<code>shortcuts.xml</code> にショートカットを追加します。</p>
+<h3 is-upgraded>shortcuts.xml</h3>
+<pre><code>&lt;shortcut
+   android:shortcutId=&#34;active_tasks&#34;
+   android:shortcutShortLabel=&#34;@string/label_active&#34;
+   android:enabled=&#34;false&#34;&gt;
+   &lt;capability-binding
+       android:key=&#34;actions.intent.OPEN_APP_FEATURE&#34;&gt;
+       &lt;parameter-binding
+           android:key=&#34;feature&#34;
+           android:value=&#34;@array/active_tasks_synonyms&#34; /&gt;
+   &lt;/capability-binding&gt;
+&lt;/shortcut&gt;
+
+&lt;shortcut
+   android:shortcutId=&#34;completed_tasks&#34;
+   android:shortcutShortLabel=&#34;@string/label_completed&#34;
+   android:enabled=&#34;false&#34;&gt;
+   &lt;capability-binding
+       android:key=&#34;actions.intent.OPEN_APP_FEATURE&#34;&gt;
+       &lt;parameter-binding
+           android:key=&#34;feature&#34;
+           android:value=&#34;@array/completed_tasks_synonyms&#34; /&gt;
+   &lt;/capability-binding&gt;
+&lt;/shortcut&gt;</code></pre>
+<p>上記のコードでは、capability とパラメーターのバインドを持つ <code>shortcut</code> 要素として表されるインライン インベントリを定義しました。ショートカットは、BII パラメータのインベントリとして使用できます。 Google アシスタントは、ユーザー クエリを Shortcuts のパラメーター バインディングの値と照合します。一致するパラメーター値の場合、<code>shortcutId</code> がフルフィルメント インテントに追加されます。ユーザーがリクエストで <code>OPEN_APP_FEATURE</code> BII をアクティブ化すると、アシスタントは feature パラメータ値をショートカットの値属性と照合し、その値を <code>Extra</code> の <code>parameter</code> として <code>targetClass</code> に渡します。</p>
+<p>たとえば、ユーザーが「Hey Google, show my completed tasks in ExampleApp」のように言うと、アシスタントは feature インテントのパラメーター値「completed tasks」を対応するインベントリ ショートカットと照合し、その値を <code>OPEN_APP_FEATURE</code> capability に渡します。その後、アシスタントは Android インテントをトリガーします。</p>
+<h2 is-upgraded>App Actionをテストする</h2>
+<p>開発およびテスト中に、<a href="https://developers.google.com/assistant/app/test-tool" target="_blank">Google Assistant plugin</a> を使用して、テスト デバイスでアシスタントを使用したApp Actionをプレビューします。また、このツールを使用してApp Actionのインテント パラメーターを調整し、ユーザーがアシスタントに実行を依頼するさまざまな方法をアクションがどのように処理するかをテストすることもできます。</p>
+<p>テスト ツールを使用してアプリ アクションをテストするには、次の手順に従います。</p>
+<ol type="1" start="1">
+<li>物理的なAndroidテストデバイスを接続するか、Androidエミュレータを開始します。</li>
+<li>もしテストツールが表示されていない場合は、<strong>Tools &gt; Google Assistant &gt; App Actions Test Tool</strong> に行くことで開きます。</li>
+<li>プレビューを更新するために、<strong>Update</strong> ボタンをクリックします。</li>
+<li>ツールが BII の選択と構成を求める最初のステップで、<code>actions.intent.OPEN_APP_FEATURE</code> を選択します。</li>
+<li><strong>feature</strong> ボックスにて、デフォルトの <code>History</code> 値を <code>Completed tasks</code> に更新します。</li>
+<li><strong>Run App Action</strong> をクリックします。</li>
+</ol>
+<aside class="special"><p><strong>Tip:</strong></p>
+<p>テスト ツールの実行中に問題が発生した場合は、<a href="https://developers.google.com/assistant/app/troubleshoot" target="_blank">troubleshooting guide</a> を確認してください。</p>
+</aside>
+<p>別の方法として、デバイスのアシスタント アプリで呼び出し名を直接使用して、App Actionを試すことができます。たとえば、「Hey Google, show completed tasks in Task List」と言うことができます。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Next steps" duration="0">
+        <p><strong>おめでとうございます！</strong></p>
+<p>Common BII を使用して、ほぼすべての Android アプリを Google アシスタントと連携させることができるようになりました。</p>
+<p><strong>What we&#39;ve covered</strong></p>
+<p>このコードラボで、あなたは以下を学びました。</p>
+<ul>
+<li>ユーザーがアシスタントを使用して特定のアプリ機能を深くダイブする方法。</li>
+<li>ユーザーがアシスタントからアプリ内検索にアクセスする方法。</li>
+<li><a href="https://developers.google.com/assistant/app/test-tool" target="_blank">Google Assistant Plugin</a> を使用してCommon BII をテストする方法。</li>
+</ul>
+<p><strong>What&#39;s next</strong></p>
+<p>ここから、To-do リスト アプリにさらに改良を加えることができます。完成したプロジェクトを参照するには、GitHub の repo – <a href="https://github.com/actions-on-google/appactions-common-biis-kotlin" target="_blank">master branch</a> を参照してください。</p>
+<p>App Actions を使用してこのアプリを拡張する方法についてさらに学習するための提案を次に示します。</p>
+<ul>
+<li>App -Actions のパフォーマンスをトラックする方法を学ぶために、 <a href="https://github.com/actions-on-google/appactions-common-biis-kotlin/tree/get-analytics-with-firebase" target="_blank">To-do list sample with Google Analytics for Firebase</a> をチェックしてください。</li>
+<li>アシスタントにアプリを拡張するもっと多くの方法を探すために、App Actions <a href="https://developers.google.com/assistant/app/reference/built-in-intents" target="_blank">built-in intents reference</a> を訪れてください。</li>
+</ul>
+<p>Actions on Google の旅を続けるために、これらのリソースを探検してください。</p>
+<ul>
+<li><a href="https://developers.google.com/assistant" target="_blank">developers.google.com/assistant</a>: Actions on Googleの公式ドキュメントサイト。</li>
+<li><a href="https://developers.google.com/assistant/app/samples" target="_blank">App Actions sample index</a>: App Actions capabilities を探索するためのサンプルアプリやコード。</li>
+<li><a href="https://github.com/actions-on-google/" target="_blank">Actions on Google GitHub repo</a>: サンプルコードやライブラリ。</li>
+<li><a href="https://www.reddit.com/r/GoogleAssistantDev/" target="_blank">r/GoogleAssistantDev</a>: Googleアシスタントを使って仕事をしている開発者のための公式Redditコミュニティ。</li>
+</ul>
+<p>Twitter <a href="https://twitter.com/ActionsOnGoogle" target="_blank">@ActionsOnGoogle</a> でフォローして最新の発表をチェックし、<a href="https://twitter.com/hashtag/aogdevs" target="_blank">#AoGDevs</a> にツイートしてあなたが構築したものを共有してください。</p>
+<p><strong>Feedback survey</strong></p>
+<p>最後に、この <a href="https://forms.gle/Znxv1iGZuXKeKbYc9" target="_blank">アンケート</a> に記入して、このコードラボでの体験についてフィードバックをお寄せください。</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
