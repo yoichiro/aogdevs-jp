@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-790299-29",
+  "updated": "2021-06-07T11:37:11Z",
+  "id": "appactions-beta_ja",
+  "duration": 0,
+  "title": "Extend an Android app to Google Assistant with App Actions (Beta) [Japanese]",
+  "authors": "yui, yoichiro",
+  "summary": "This codelab covers how to build an App Action with capabilities.",
+  "source": "1QJjgERI1MULjqP-CQH5OgmkiPCeDkNo3R0TQkKYMmyc",
+  "theme": "assistant",
+  "status": [
+    "live"
+  ],
+  "category": [
+    "Assistant"
+  ],
+  "tags": [
+    "lang-ja",
+    "tag-assistant",
+    "web"
+  ],
+  "url": "appactions-beta_ja"
+}
