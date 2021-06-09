@@ -1,0 +1,362 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Debugging the Smart Home [Japanese]</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-790299-29"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="smarthome-debugging_ja"
+                  title="Debugging the Smart Home [Japanese]"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="始める前に" duration="0">
+        <p>モノのインターネット (IoT) の開発者は、ユーザーが Google Home アプリのタッチコントロールと Google アシスタントの音声コマンドでデバイスを制御できる <a href="https://developers.google.com/actions/smarthome" target="_blank">スマートホームアクション</a> を構築できます。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/f2c369741ba25391.gif"></p>
+<p>スマート ホーム アクションのデバッグ ツールを学習することは、Google アシスタントとの製品品質の統合を構築するための重要なステップです。モニタリングとデバッグを容易にするために、 <a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging" target="_blank">Google Cloud Platform (GCP) Metrics and Logging</a> および <a href="https://developers.google.com/assistant/smarthome/tools/smart-home-test-suite" target="_blank">Test Suite for smart home</a> を利用して、アクションの問題を特定して解決することができます。</p>
+<h2 is-upgraded>事前準備</h2>
+<ul>
+<li><a href="https://developers.google.com/actions/smarthome/develop/create" target="_blank">Create a smart home Action</a> 開発者ガイドを読んでおいてください。</li>
+<li><a href="https://codelabs.developers.google.com/codelabs/smarthome-washer" target="_blank">Connect smart home devices to the Google Assistant</a> コードラボを実施しておいてください。</li>
+</ul>
+<h2 is-upgraded>作るものはなんですか</h2>
+<p>このコードラボでは、2 つの欠陥があるスマート ホーム アクションをデプロイしてアシスタントに接続し、スマート ホームと Google Cloud Platform (GCP) のメトリックとロギングのテスト スイートを介してアクションの欠陥をデバッグします。</p>
+<h2 is-upgraded>何を学びますか</h2>
+<ul>
+<li>GCP のメトリクスとロギングを使用して本番環境の問題を特定して解決する方法</li>
+<li>Test Suite for Smart Home を使用して機能と API の問題を特定する方法</li>
+</ul>
+<h2 is-upgraded>何が必要ですか</h2>
+<ul>
+<li><a href="http://google.com/chrome" target="_blank">Google Chrome</a> のようなウェブブラウザ。</li>
+<li><a href="https://support.google.com/chromecast/answer/7071794" target="_blank">Google Home アプリ</a> がインストールされている iOS または Android デバイス。</li>
+<li><a href="https://nodejs.org/" target="_blank">Node.js</a> バージョン 10.16 以上。</li>
+<li>Google Cloud の <a href="https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account" target="_blank">請求アカウント</a>。</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="失敗アプリを実行する" duration="0">
+        <aside class="warning"><p><strong>Important</strong>:</p>
+<p>開始する前に、<a href="https://codelabs.developers.google.com/codelabs/smarthome-washer" target="_blank">Connect smart home devices to the Google Assistant</a> コードラボを行って、次の手順を完了していることを確認してください。</p>
+<ul>
+<li>アクション コンソールでスマート ホーム アクションを作成する</li>
+<li>アクションの仮想スマート ウォッシャーを管理するクラウド フルフィルメントをデプロイします</li>
+<li>スマートホーム アクションを Google アシスタントにリンクする</li>
+</ul>
+</aside>
+<h2 is-upgraded>ソースコードを入手する</h2>
+<p>次のリンクをクリックして、開発マシンにこのコードラボのサンプルをダウンロードします。</p>
+<p><a href="https://github.com/googlecodelabs/smarthome-debug/archive/refs/heads/main.zip" target="_blank"><paper-button class="colored" raised><iron-icon icon="file-download"></iron-icon>Download source code</paper-button></a></p>
+<p>または、コマンドラインからGitHubリポジトリをcloneすることができます。</p>
+<pre>$ git clone https://github.com/googlecodelabs/smarthome-debug.git</pre>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>codelab リポジトリには 2 つのディレクトリが含まれています。</p>
+<ul>
+<li><img style="width: 32.00px" src="img/a1beacb239657647.png"> <code>Washer-faulty</code> — バグのあるサンプル ウォッシャー アプリを含む開始コード。</li>
+<li><img style="width: 32.00px" src="img/a1beacb239657647.png"> <code>Washer-done</code> — サンプル ウォッシャー アプリのバグを修正する完全なコード。</li>
+</ul>
+</aside>
+<h2 is-upgraded>プロジェクトについて</h2>
+<p>ウォッシャーアプリは以下のサブディレクトリを含んでいます。</p>
+<ul>
+<li><code>public</code>: スマート ウォッシャーの状態を簡単に制御および監視するためのフロントエンド UI。</li>
+<li><code>functions</code>: <a href="https://firebase.google.com/docs/functions" target="_blank">Cloud Functions for Firebase</a> および <a href="https://firebase.google.com/docs/database/" target="_blank">Firebase Realtime Database</a> を使用してスマート ウォッシャーを管理する完全に実装されたクラウド サービス。</li>
+</ul>
+<h2 is-upgraded>Firebaseに接続する</h2>
+<p>開発マシンでターミナルを開きます。 <code>washer-faulty</code> ディレクトリに移動し、 <a href="https://codelabs.developers.google.com/codelabs/smarthome-washer" target="_blank">Connect smart home devices to the Google Assistant コードラボ</a> にて構築されたアクション プロジェクトで Firebase CLI を設定します。</p>
+<pre>$ cd washer-faulty
+$ firebase use &lt;project-id&gt;</pre>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>スマート ホーム アクションのプロジェクト ID がわからない場合は、 <strong>Project Settings</strong> の Actions consoleで見つけることができます。</p>
+</aside>
+<h2 is-upgraded>Firebaseにデプロイする</h2>
+<p>functions フォルダーに移動し、npm を使用して必要なすべての依存関係をインストールします。</p>
+<pre>$ cd functions
+$ npm install
+</pre>
+<p><strong>Note</strong>: 以下のメッセージが表示された場合は、無視して続行できます。この警告は、一部の古い依存関係が原因であり、詳細は <a href="https://github.com/actions-on-google/actions-on-google-nodejs/issues/407" target="_blank">こちら</a> で確認できます。</p>
+<pre>found 5 high severity vulnerabilities
+  run `npm audit fix` to fix them, or `npm audit` for details</pre>
+<p>依存関係をインストールしてプロジェクトを構成したので、障害のあるウォッシャー アプリをデプロイする準備が整いました。</p>
+<pre>$ firebase deploy</pre>
+<p>これは、表示されるコンソール出力です。</p>
+<pre>...
+
+✔ Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/&lt;project-id&gt;/overview
+Hosting URL: https://&lt;project-id&gt;.firebaseapp.com
+</pre>
+<h2 is-upgraded>HomeGraph を更新する</h2>
+<p>Web アプリを表示するには、ブラウザで Hosting URL を開きます ( <code>https://<project-id>.firebaseapp.com</code> ) 。 Web UI で <strong>Refresh </strong><img style="width: 24.00px" src="img/be3158468323f91d.png"> ボタンをクリックして、障害のある洗濯機アプリからの最新のデバイス メタデータで、 <a href="https://developers.google.com/assistant/smarthome/develop/request-sync" target="_blank">Request Sync</a> を介して HomeGraph を更新します。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/8121f389913d47a6.png"></p>
+<p>Google Homeアプリを開いて、<strong>Faulty Washer</strong> という名前でウォッシャーデバイスを見ることができるかどうか確認してください。</p>
+<p class="image-container"><img style="width: 233.96px" src="img/5e85d9709ecb3e2b.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="アクションをテストする" duration="0">
+        <p>プロジェクトをデプロイした後、アクションがウォッシャーを制御することをテストします。</p>
+<h2 is-upgraded>ウォッシャーをテストする</h2>
+<p>&#34;Hey Google, turn on my washer.&#34;</p>
+<p>&#34;Hey Google, start my washer.&#34;</p>
+<p>&#34;<strong>Hey Google, pause my washer.</strong>&#34;</p>
+<p>&#34;<strong>Hey Google, resume my washer.</strong>&#34;</p>
+<p>&#34;Hey Google, stop my washer.&#34;</p>
+<p>洗濯機を一時停止/再開すると、アシスタントが音声で何か問題があると応答します。</p>
+<p>&#34;Sorry, I couldn&#39;t reach &lt;project display name&gt;.&#34;</p>
+<p>この問題をデバッグするには、まずエラーに関する詳細情報を絞り込み、根本原因を特定する必要があります。</p>
+<h2 is-upgraded>スマートホームアナリティクスダッシュボード</h2>
+<p>エラーを検査するのに適した場所は、クラウド フルフィルメントの <a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging#smart_home_dashboard" target="_blank">Usage and Health metrics</a> のグラフを集約する <strong>Smarthome Analytics ダッシュボード</strong> です。</p>
+<ul>
+<li><strong>Usage</strong> の指標は、1 日のアクティブ ユーザー数やフルフィルメントへの合計リクエスト数など、スマート ホーム アクションの使用傾向を反映しています。</li>
+<li><strong>Health</strong> メトリクスは、スマート ホーム アクションでの異常の発生を監視するのに役立ち、リクエストのレイテンシ、成功率、エラーの内訳をカバーします。</li>
+</ul>
+<aside class="special"><p><strong>Note:</strong></p>
+<p><a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging#accessing_metrics" target="_blank">Google Cloud Platform (GCP) Metrics</a> でプロジェクトのメトリクスをさらに詳しく調べたり、異常発生のアラートを設定したり、独自のメトリクスを定義したりできます。詳細については、 <a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging" target="_blank">オンラインドキュメント</a> を確認してください。</p>
+</aside>
+<p>エラーの原因を絞り込むには、ダッシュボードの <strong>error breakdown</strong> チャートでエラーの手がかりを確認してください。</p>
+<p>まず、次の手順に従ってプロジェクトのダッシュボードにアクセスします。</p>
+<ol type="1" start="1">
+<li><a href="https://console.actions.google.com/" target="_blank">Actions console</a> にて、Project ページに行きます。</li>
+<li>あなたのスマートホームアクションを選択します。</li>
+<li><strong>Analytics</strong> タブを選択して、 <strong>Go to Google Cloud Platform</strong> をクリックします。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/114a7ce60e4b8fca.png"></p>
+<p><strong>Smarthome Error Breakdown</strong> グラフ (上から 4 行目の左側) を含む複数のグラフが表示され、失敗した要求の数とそれぞれのエラー コードが示されます。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/4a9d87a88b568a63.png"></p>
+<p><code>INVALID_JSON</code> エラー コードは、根本原因へのヒントを提供します。次に、詳細について、エラー コードに基づいてイベント ログを取得します。</p>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>グラフに線が表示されない場合は、クラウド メトリックの遅延の可能性があるため、5 分後にダッシュボードをリロードしてください</p>
+</aside>
+<h2 is-upgraded>イベントログにアクセスする</h2>
+<p>エラーの詳細を取得するには、<a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging#logging" target="_blank">Cloud Logging</a> を介してスマート ホーム アクションのイベント ログにアクセスします。</p>
+<p>Google Cloud Platform でナビゲーション メニューを開きます。  <strong>Operations</strong> で <strong>Logging &gt; Logs Explorer</strong> を選択してプロジェクトの <a href="https://console.cloud.google.com/logs" target="_blank">Cloud Logging</a> にアクセスし、クエリ <code>INVALID_JSON</code> を実行して関連するイベント ログを取得します。最新のエラー ログを見つける必要があります。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/9bc25c20acf01faa.png"></p>
+<p>エラー ログはスマート ホーム イベントであり、 <a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging#execution_payload" target="_blank">エラーの詳細</a> は次のように示されます。</p>
+<ul>
+<li>実行されたユーザー アクションは、最近失敗した音声コマンドに対応する &#34;resuming washer&#34; ( <code>actionType</code>: &#34;<code>STARTSTOP_UNPAUSE</code>&#34; ) です。</li>
+<li>関連するデバッグ メッセージは、 &#34;<code>JSON response does not include device.</code>&#34; です。</li>
+</ul>
+<p>デバッグ メッセージに基づいて、洗濯機アプリが <code>EXECUTE</code> 応答に正しいデバイスを含めない理由を確認する必要があります。</p>
+<h2 is-upgraded>エラーの根本原因を特定する</h2>
+<p><code>functions/index.js</code> で、各コマンドのステータスと新しいデバイスの状態を返す <code>EXECUTE</code> ハンドラー (<code>onExecute</code> 配列内) を見つけます。 <code>EXECUTE</code> 応答へのデバイス ID の挿入は、 <code>updateDevice</code> 関数の解決に依存します。</p>
+<h3 is-upgraded>index.js</h3>
+<pre><code>app.onExecute(async (body) =&gt; {
+ ...
+
+ for (const command of intent.payload.commands) {
+   for (const device of command.devices) {
+     for (const execution of command.execution) {
+       executePromises.push(
+           updateDevice(execution, device.id)
+               .then((data) =&gt; {
+                 result.ids.push(device.id);
+                 Object.assign(result.states, data);
+               })
+               .catch((e) =&gt;
+                 functions.logger.error(&#39;EXECUTE&#39;,
+                     device.id, e.message)));
+     }
+   }
+ }</code></pre>
+<p><code>updateDevice</code> 関数がウォッシャーで一時停止/再開を処理する方法をさらに確認すると、 <a href="https://developers.google.com/assistant/smarthome/traits/startstop#action.devices.commands.pauseunpause" target="_blank">pause / resume コマンド</a> に一致する文字列が正しくないことがわかります。</p>
+<h3 is-upgraded>index.js</h3>
+<pre><code>const updateDevice = async (execution, deviceId) =&gt; {
+ const {params, command} = execution;
+ let state; let ref;
+ switch (command) {
+   ...
+   case &#39;action.devices.commands.PauseUnpausePause&#39;:
+     state = {isPaused: params.pause};
+     if (params.pause) state.isRunning = false;
+     ref = firebaseRef.child(deviceId).child(&#39;StartStop&#39;);
+     break;
+ }
+
+ return ref.update(state)
+     .then(() =&gt; state);
+};</code></pre>
+<h2 is-upgraded>エラーを修正する</h2>
+<p>エラーの根本原因を特定したので、一時停止/再開コマンドの文字列を修正できます。</p>
+<h3 is-upgraded>index.js</h3>
+<pre><code>const updateDevice = async (execution, deviceId) =&gt; {
+ const {params, command} = execution;
+ let state; let ref;
+ switch (command) {
+   ...
+   case &#39;action.devices.commands.PauseUnpause&#39;:
+     state = {isPaused: params.pause};
+     if (params.pause) state.isRunning = false;
+     ref = firebaseRef.child(deviceId).child(&#39;StartStop&#39;);
+     break;
+ }
+
+ return ref.update(state)
+     .then(() =&gt; state);
+};</code></pre>
+<h2 is-upgraded>修正をテストする</h2>
+<p>Firebase CLIを使って、更新されたコードをデプロイします。</p>
+<pre>firebase deploy --only functions</pre>
+<p>次の音声コマンドを再試行すると、洗濯機を一時停止/再開したときにアシスタントが正しく応答することがわかります。</p>
+<p>&#34;Hey Google, pause my washer.&#34;</p>
+<p><strong>=&gt;</strong></p>
+<p><strong>&#34;Sure, pausing the washer.&#34;</strong></p>
+<p>&#34;Hey Google, resume my washer.&#34;</p>
+<p><strong>=&gt;</strong></p>
+<p><strong>&#34;Got it, resuming the washer.&#34;</strong></p>
+<p>You can also test the current state of your washer by asking questions.</p>
+<p>&#34;Hey Google, is my washer on?&#34;</p>
+<p>&#34;Hey Google, is my washer running?&#34;</p>
+<p>&#34;Hey Google, what cycle is my washer on?&#34;</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Test Suiteを使ってアクションをテストする" duration="0">
+        <p>手動でのテストに加えて、 <a href="https://developers.google.com/assistant/smarthome/tools/smart-home-test-suite" target="_blank">スマートホーム向けのテストスイート</a> を使用して、アクションに関連付けられたデバイス タイプとトレイトに基づいてユース ケースを検証できます。テスト スイートは一連のテストを実行してアクションの問題を検出し、失敗したテスト ケースの情報メッセージを表示して、イベント ログに飛び込む前にデバッグを促進します。</p>
+<h2 is-upgraded>スマートホーム向けテストスイートを実行する</h2>
+<p>テストスイートによるスマートホームアクションのテストは、これらの指示に従います。</p>
+<ol type="1" start="1">
+<li>Web ブラウザーで、 <a href="https://smarthome-test-suite.appspot.com/" target="_blank">Test Suite for smart home</a> を開きます。</li>
+<li>右上隅にあるボタンを使用して Google にログインします。これにより、テスト スイートはコマンドを Google アシスタントに直接送信できます。</li>
+<li><strong>Project ID</strong> フィールドに、スマート ホーム アクションのプロジェクト ID を入力します。そして、 <strong>NEXT</strong> をクリックして次に進みます。</li>
+<li><strong>Test Settings</strong> ステップでは、テスト スイートに洗濯機のデバイス タイプと特性が一覧表示されます。<br><br><img style="width: 601.70px" src="img/78ed6a1ebdb581bf.png"></li>
+<li>サンプル ウォッシャー アプリには、ウォッシャーを追加/削除/名前変更する UI がないため、 <strong>Test Request Sync</strong> オプションを無効にします。実稼働システムでは、ユーザーがデバイスを追加/削除/名前変更するたびに、 <a href="https://developers.google.com/assistant/smarthome/develop/request-sync" target="_blank">Request Sync</a> をトリガーする必要があります。</li>
+<li><strong>NEXT</strong> をクリックして、テストの実行を開始します。</li>
+</ol>
+<p>テスト スイートの実行が完了したら、テスト ケースの結果を表示します。失敗した 2 つのテスト ケースがそれぞれのエラー メッセージでキャッチされていることに気付くでしょう。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/17cc54782beb9210.png"></p>
+<p>エラーのスマート ホーム アクションをデバッグするには、最初にエラー メッセージを分析して、エラーの根本原因を特定する必要があります。</p>
+<h2 is-upgraded>エラーメッセージを分析する</h2>
+<p>開発者が根本原因を特定できるようにするために、Test Suite は失敗した各テスト ケースのエラー メッセージを表示し、失敗の理由を示します。</p>
+<p>上記の最初の失敗したテスト ケースでは、</p>
+<p class="image-container"><img style="width: 601.70px" src="img/605871f220f3ab57.png"></p>
+<p>エラー メッセージは、テスト スイートがスマート ホーム アクションから報告された状態で <code>"isPause": true</code> を期待していることを示していますが、実際の状態には <code>"isPause": false</code> のみが含まれます。</p>
+<p>さらに、2 番目に失敗したテスト ケースのエラー メッセージは、スマート ホーム アクションからの <code>QUERY</code> 応答の状態が <code>"isPause": true</code> であることを示しています。これは、スマート ホーム アクションから報告された状態の <code>"isPause": false</code> とは異なります。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/56fa85437cedc9bc.png"></p>
+<p>両方のエラー メッセージに従って、アクションが <code>isPaused</code> の状態が正しい値で報告されているかどうかを確認する必要があります。</p>
+<h2 is-upgraded>エラーの根本原因を特定する</h2>
+<p><code>functions/index.js</code> を開きます。この関数には、レポートの状態を介して状態の変更をホーム グラフに送信する <code>reportstate</code> 関数が含まれています。 Report State ペイロードを調べると、ペイロードに <code>isPaused</code> 状態が欠落していることがわかります。これは、失敗したテスト ケースでテスト スイートがチェックしたのとまったく同じです。</p>
+<h3 is-upgraded>index.js</h3>
+<pre><code>exports.reportstate = functions.database.ref(&#39;{deviceId}&#39;).onWrite(
+    async (change, context) =&gt; {
+      ...
+
+      const requestBody = {
+        requestId: &#39;ff36a3cc&#39;, /* Any unique ID */
+        agentUserId: USER_ID,
+        payload: {
+          devices: {
+            states: {
+              /* Report the current state of our washer */
+              [context.params.deviceId]: {
+                online: true,
+                on: snapshot.OnOff.on,
+                isRunning: snapshot.StartStop.isRunning,
+                currentRunCycle: [{
+                  currentCycle: &#39;rinse&#39;,
+                  nextCycle: &#39;spin&#39;,
+                  lang: &#39;en&#39;,
+                }],
+                currentTotalRemainingTime: 1212,
+                currentCycleRemainingTime: 301,
+              },
+            },
+          },
+        },
+      };
+
+      const res = await homegraph.devices.reportStateAndNotification({
+        requestBody,
+      });
+      ...
+    });</code></pre>
+<h2 is-upgraded>エラーを修正する</h2>
+<p>エラーの根本原因を特定したので、<code>isPaused</code> 状態を Report State ペイロードに追加して <code>functions/index.js</code> を修正します。</p>
+<h3 is-upgraded>index.js</h3>
+<pre><code>exports.reportstate = functions.database.ref(&#39;{deviceId}&#39;).onWrite(
+    async (change, context) =&gt; {
+      ...
+
+      const requestBody = {
+        requestId: &#39;ff36a3cc&#39;, /* Any unique ID */
+        agentUserId: USER_ID,
+        payload: {
+          devices: {
+            states: {
+              /* Report the current state of our washer */
+              [context.params.deviceId]: {
+                online: true,
+                on: snapshot.OnOff.on,
+                isPaused: snapshot.StartStop.isPaused,
+                isRunning: snapshot.StartStop.isRunning,
+                currentRunCycle: [{
+                  currentCycle: &#39;rinse&#39;,
+                  nextCycle: &#39;spin&#39;,
+                  lang: &#39;en&#39;,
+                }],
+                currentTotalRemainingTime: 1212,
+                currentCycleRemainingTime: 301,
+              },
+            },
+          },
+        },
+      };
+      ...
+    });</code></pre>
+<h2 is-upgraded>修正をテストする</h2>
+<p>Firebase CLIを使って、更新されたコードをデプロイします。</p>
+<pre>$ firebase deploy --only functions</pre>
+<p>スマート ホームのテスト スイートを再実行すると、すべてのテスト ケースに合格したことがわかります。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/322c83f53fbd1366.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="おめでとう" duration="0">
+        <p class="image-container"><img style="width: 508.00px" src="img/674c4f4392e98c1.png"></p>
+<p>おめでとう！テスト スイートを介してスマート ホーム アクションの問題をトラブルシューティングする方法を学習しました。</p>
+<h2 is-upgraded>もっと学習する</h2>
+<p>この Codelab を構築して、次の演習を試して、追加のリソースを調べてください。</p>
+<ul>
+<li>デバイスにもっと <a href="https://developers.google.com/actions/smarthome/traits/" target="_blank">supported traits</a> を追加して、Test Suite を使ってそれらをテストします。</li>
+<li><a href="https://cloud.google.com/monitoring/charts" target="_blank">dashboards</a> を作成して、 <a href="https://cloud.google.com/monitoring/alerts" target="_blank">alerts</a> をセットアップし、アクションについて有益な使用メトリクスを得るために、 <a href="https://cloud.google.com/monitoring/api/v3" target="_blank">access metrics data programmatically</a> にアクセスします。</li>
+<li>スマートホーム向けの <a href="https://developers.google.com/actions/smarthome/concepts/local" target="_blank">local fulfillment</a> を調査します。</li>
+<li>より探求するために、 <a href="https://github.com/actions-on-google/smart-home-nodejs" target="_blank">GitHub sample</a> をチェックします。</li>
+</ul>
+<p>また、アクションをユーザーに公開するための認証プロセスなど、レビューのためにアクションを <a href="https://developers.google.com/actions/smarthome/develop/testing-submitting" target="_blank">テストして提出する</a> 方法についても学ぶことができます。</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
