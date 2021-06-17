@@ -1,0 +1,427 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Debugging the Local Home</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-790299-29"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="localhome-debugging_ja"
+                  title="Debugging the Local Home"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="始める前に" duration="0">
+        <p>スマートホームの統合により、Googleアシスタントはユーザーの家に接続されているデバイスを制御できます。スマートホームアクションを構築するには、 <a href="https://developers.google.com/actions/smarthome/develop/process-intents" target="_blank">スマートホームインテント</a> を処理できるクラウドWebhookエンドポイントを提供する必要があります。たとえば、ユーザーが「Hey Google, turn on the light,」と言うと、アシスタントはクラウドフルフィルメントにコマンドを送信してデバイスの状態を更新します。</p>
+<p>Local Home SDKは、スマートホームインテントをGoogle Homeデバイスに直接ルーティングするローカルパスを追加することでスマートホームの統合を強化します。これにより、信頼性が向上し、ユーザーのコマンド処理の待ち時間が短縮されます。 TypeScriptまたはJavaScriptでローカルフルフィルメントアプリを作成してデプロイし、デバイスを識別して、GoogleHomeスマートスピーカーまたはGoogleNestスマートディスプレイでコマンドを実行できます。そして、アプリが既存の標準プロトコルを使用してコマンドを実行することにより、ローカルエリアネットワークを介してユーザーの既存のスマートデバイスと直接通信します。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/5ddba25bb1ea1cf2.png"></p>
+<p>スマートホームアクションのデバッグは、本稼働時の品質でアクションを構築するための重要なステップですが、有益で使いやすいトラブルシューティングおよびテストツールがないと、困難で時間がかかります。スマートホームアクションのデバッグを容易にするために、 <a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging" target="_blank">Google Cloud Platform (GCP) Metrics and Logging</a> および <a href="https://developers.google.com/assistant/smarthome/tools/smart-home-test-suite" target="_blank">Test Suite for smart home</a> を使用して、アクションの問題を特定して解決することができます。</p>
+<h2 is-upgraded>事前準備</h2>
+<ul>
+<li><a href="https://developers.google.com/actions/smarthome/develop/create" target="_blank">Create a smart home Action</a> 開発ガイド</li>
+<li><a href="https://codelabs.developers.google.com/codelabs/smarthome-local" target="_blank">Enable local fulfillment for smart home Action</a> コードラボを行ってください</li>
+</ul>
+<h2 is-upgraded>何を開発するのか</h2>
+<p>このコードラボでは、スマートホームアクションのローカルフルフィルメントを作成してアシスタントに接続し、 Test Suite for smart home と Google Cloud Platform (GCP) Metrics and Logging を介してローカルホームアプリをデバッグします。</p>
+<h2 is-upgraded>何を学ぶのか</h2>
+<ul>
+<li>GCP Metrics and Logging を使用して本稼働時の問題を特定して解決する方法。</li>
+<li>Test Suite を使用して機能およびAPIの問題を特定する方法。</li>
+<li>ローカルホームアプリの開発中にChrome DevTools を使用する方法。</li>
+</ul>
+<h2 is-upgraded>何が必要か</h2>
+<ul>
+<li><a href="http://google.com/chrome" target="_blank">Google Chrome</a> の最新バージョン</li>
+<li>Google Homeアプリを搭載したiOSまたはAndroidデバイス</li>
+<li>GoogleHome スマートスピーカーまたはGoogle Nestスマートディスプレイ</li>
+<li><a href="https://nodejs.org/" target="_blank">Node.js</a> バージョン10.16以降</li>
+<li><a href="https://account.google.com/" target="_blank">Google アカウント</a></li>
+<li>Google Cloudの <a href="https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account" target="_blank">請求先アカウント</a></li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="洗濯機アプリの実行" duration="0">
+        <aside class="warning"><p><strong>Important</strong>:</p>
+<p>開始する前に、 <a href="https://codelabs.developers.google.com/codelabs/smarthome-local" target="_blank">Enable local fulfillment for smart home Actions</a> コードラボを実行し、以下を完了していることを確認してください。</p>
+<ul>
+<li>Actions Console でスマートホームアクションを作成する</li>
+<li>アクションの仮想スマートウォッシャーを管理するクラウドフルフィルメントをデプロイする</li>
+<li>仮想デバイスと通信するローカルホームアプリをデプロイする</li>
+</ul>
+</aside>
+<h2 is-upgraded>ソースコードの入手</h2>
+<p>開発マシンにこのコードラボのサンプルをダウンロードするために、以下のリンクをクリックします。</p>
+<p><a href="https://github.com/googlecodelabs/smarthome-debug-local/archive/refs/heads/main.zip" target="_blank"><paper-button class="colored" raised><iron-icon icon="file-download"></iron-icon>Download source code</paper-button></a></p>
+<p>...または、コマンドラインからGitHubリポジトリをcloneすることもできます。</p>
+<pre>$ git clone https://github.com/googlecodelabs/smarthome-debug-local.git</pre>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>codelabリポジトリには、次の3つのディレクトリが含まれています。</p>
+<ul>
+<li><img style="width: 32.00px" src="img/a1beacb239657647.png"> app-faulty - バグのあるローカルフルフィルメントアプリを含む開始コード</li>
+<li><img style="width: 32.00px" src="img/a1beacb239657647.png"> app-done - 完成したローカルフルフィルメントアプリの完全なコード</li>
+<li><img style="width: 32.00px" src="img/a1beacb239657647.png"> virtual-device - Node.jsで記述されたシミュレートされたウォッシャーデバイス</li>
+</ul>
+</aside>
+<h3 is-upgraded>プロジェクトについて</h3>
+<p>スターターアプリには、 <a href="https://codelabs.developers.google.com/codelabs/smarthome-local" target="_blank">Enable local fulfillment for smart home Actions</a> コードラボと同様のサブディレクトリと Cloud Functions が含まれています。しかし、 <code>app-start</code> の代わりに、ここでは <code>app-faulty</code> があります。まず、機能するがそれほどうまく機能しないローカルホームアプリから始めます。</p>
+<h2 is-upgraded>Firebaseに接続する</h2>
+<p><a href="https://codelabs.developers.google.com/codelabs/smarthome-local" target="_blank">Enable local fulfillment for smart home Actions</a> コードラボで作成したものと同じプロジェクトを使用しますが、このコードラボでダウンロードしたファイルをデプロイします。</p>
+<p><code>app-faulty</code> ディレクトリに移動し、 <a href="https://codelabs.developers.google.com/codelabs/smarthome-local" target="_blank">Enable local fulfillment for smart home Actions</a> コードラボで作成したアクションプロジェクトを使用してFirebaseCLIを設定します。</p>
+<pre>$ cd app-faulty
+$ firebase use &lt;project-id&gt;
+</pre>
+<aside class="special"><p><strong>Tip:</strong></p>
+<p>スマートホームアクションのプロジェクトIDがわからない場合は、アクションコンソールの <strong>Project settings</strong> にあります。</p>
+</aside>
+<h2 is-upgraded>Firebaseにデプロイする</h2>
+<p><code>app-faulty/functions</code> フォルダーに移動し、<code>npm</code> を使用して必要なすべての依存関係をインストールします。</p>
+<pre>$ cd functions
+$ npm install
+</pre>
+<p><strong>Note</strong>: 以下のメッセージが表示された場合は、無視して続行できます。警告はいくつかの古い依存関係によるものであり、詳細については <a href="https://github.com/actions-on-google/actions-on-google-nodejs/issues/407" target="_blank">こちら</a> をご覧ください。</p>
+<pre>found 5 high severity vulnerabilities
+  run `npm audit fix` to fix them, or `npm audit` for details</pre>
+<p><code>app-faulty/local/</code> ディレクトリに移動し、次のコマンドを実行してTypeScriptコンパイラをダウンロードし、アプリをコンパイルします。</p>
+<pre>$ cd ../local
+$ npm install
+$ npm run build</pre>
+<p>これにより、<code>index.ts</code> (TypeScript) ソースがコンパイルされ、次のコンテンツが <code>app-faulty/public/local-home/</code> ディレクトリに配置されます。</p>
+<ul>
+<li><code>bundle.js</code> - ローカルアプリと依存関係を含むコンパイル済みJavaScript出力。</li>
+<li><code>index.html</code> - デバイス上のテスト用にアプリを提供するために使用されるローカルホスティングページ。</li>
+</ul>
+<p>依存関係をインストールしてプロジェクトを構成したので、アプリを初めて実行する準備が整いました。</p>
+<pre>$ firebase deploy</pre>
+<p>これはあなたが見るべきコンソールの出力です。</p>
+<pre>...
+
+✔ Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/&lt;project-id&gt;/overview
+Hosting URL: https://&lt;projectcd -id&gt;.web.app</pre>
+<p>このコマンドは、いくつかの <a href="https://firebase.google.com/docs/functions/" target="_blank">Cloud Functions for Firebase</a> と共に、Webアプリをデプロイします。</p>
+<aside class="warning"><p><strong>Important</strong>:</p>
+<p>Google Homeデバイスを再起動して、デプロイしたばかりのローカルホームアプリが読み込まれていることを確認することをお勧めします。</p>
+</aside>
+<h2 is-upgraded>HomeGraphの更新</h2>
+<p>ブラウザで <strong>Hosting URL</strong> (<code>https://<project-id> .web.app</code>) を開いて、Webアプリを表示します。 Web UIで <strong>Refresh </strong><img style="width: 24.00px" src="img/be3158468323f91d.png"> ボタンをクリックして、 <a href="https://developers.google.com/assistant/smarthome/develop/request-sync" target="_blank">Request Sync</a> を介して、障害のあるウォッシャーアプリからの最新のデバイスメタデータでHomeGraphを更新します。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/8121f389913d47a6.png"></p>
+<p>Google Home アプリを開き、&#34;Faulty Washer&#34; という新しい名前の洗濯機デバイスが表示されることを確認します。 Nestデバイスがある部屋にデバイスを割り当てることを忘れないでください。</p>
+<p class="image-container"><img style="width: 238.31px" src="img/d18639de65efda91.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="スマート洗濯機を動かす" duration="0">
+        <p>もし <a href="https://codelabs.developers.google.com/codelabs/smarthome-local" target="_blank">Enable local fulfillment for smart home Actions</a> コードラボを行っていた場合は、仮想スマートウォッシャーを既に開始しているはずです。停止している場合は、仮想デバイスを再起動することを忘れないでください。</p>
+<h2 is-upgraded>デバイスを動かす</h2>
+<p><code>virtual-device/</code> ディレクトリに移動し、デバイススクリプトを実行して、構成パラメータを引数として渡します。</p>
+<pre>$ cd ../../virtual-device
+$ npm install
+$ npm start -- \
+  --deviceId=deviceid123 --projectId=&lt;project-id&gt; \
+  --discoveryPortOut=3311 --discoveryPacket=HelloLocalHomeSDK</pre>
+<p>期待したパラメータを使ってデバイススクリプトが実行されたか確認します。</p>
+<pre>(...): UDP Server listening on 3311
+(...): Device listening on port 3388
+(...): Report State successful</pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Local Home App のテスト" duration="0">
+        <p>次のようなコマンドをGoogle Homeデバイスへの音声コマンドを介してデバイスに送信します。</p>
+<p>&#34;Hey Google, turn on my washer.&#34;</p>
+<p>&#34;Hey Google, start my washer.&#34;</p>
+<p><strong>&#34;Hey Google, force local.&#34;</strong></p>
+<p>&#34;Hey Google, stop my washer.&#34;</p>
+<aside class="special"><p><strong>Note:</strong></p>
+<p>Googleアシスタントは、&#34;force local&#34; コマンドの後に &#34;Ok&#34; や &#34;Got it&#34; などの肯定的な応答を返す必要があります。 &#34;force local&#34; コマンドは、Googleにクラウドパスへのフォールバックではなく、常にローカルパスを使用するように強制することです。</p>
+</aside>
+<aside class="warning"><p><strong>Important</strong>:</p>
+<p>&#34;Hey Google, force default&#34; と発声して、&#34;force local&#34; コマンドを無効にします。</p>
+</aside>
+<p>&#34;force local&#34; の後に洗濯機を制御しようとすると、Googleアシスタントが &#34;Sorry, it looks like the Faulty Washer isn&#39;t available right now&#34; と応答することがわかります。</p>
+<p>これは、デバイスがローカルパスを介して到達できないことを意味します。  &#34;Hey Google, force local&#34; を発行する前は、機能しました。これは、デバイスがローカルパスを介して到達できない場合に、クラウドパスの使用にフォールバックするためです。ただし、&#34;force local&#34; の後、クラウドパスにフォールバックするオプションは無効になります。</p>
+<p>問題が何であるかを見つけるために、私たちが持っているツールを利用しましょう: Google <a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging" target="_blank">Cloud Platform (GCP)  Metrics andLogging</a> と Chrome DevTools</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Local Home アプリのデバッグ" duration="0">
+        <p>次のセクションでは、Googleが提供するツールを使用して、ローカルパスを介してデバイスに到達できない理由を確認します。 <a href="https://developers.google.com/web/tools/chrome-devtools/" target="_blank">Google Chrome Developer Tools</a> を使用して Google Home デバイスに接続し、コンソールログを表示して、ローカルホームアプリをデバッグできます。カスタムログを <a href="https://cloud.google.com/logging" target="_blank">Cloud Logging</a> に送信して、ユーザーがローカルホームアプリで見つけている上位のエラーを認識できるようにすることもできます。</p>
+<h2 is-upgraded>Chrome Developer Tools に接続する</h2>
+<p>デバッガーをローカルフルフィルメントアプリに接続するには、次の手順に従います。</p>
+<ol type="1" start="1">
+<li><a href="https://console.actions.google.com/" target="_blank">Actions Console</a> プロジェクトにアクセスする権限を持つユーザーで Google Home デバイスをリンクしていることを確認してください。</li>
+<li>Google Homeデバイスを再起動します。これにより、HTMLのURLと、アクションコンソールに入力したスキャン構成を取得できるようになります。</li>
+<li>開発マシンでChromeを起動します。</li>
+<li>新しいChromeタブを開き、アドレスフィールドに <code>chrome://inspect</code> と入力して、インスペクターを起動します。</li>
+</ol>
+<p>ページにデバイスのリストが表示され、アプリのURLが Google Home デバイスの名前の下に表示されます。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/6e5c17b1fb05c648.png"></p>
+<aside class="warning"><p><strong>Important</strong>:</p>
+<p>URLが表示されない場合は、Actions on Googleプロジェクトのリンクを解除して再リンクしてから、Google Homeデバイスを再起動してください。アクションコンソールの設定が有効になるまで、最大20分かかる場合があります。</p>
+</aside>
+<h2 is-upgraded>インスペクターの起動</h2>
+<p>アプリのURLの下にある <strong>Inspect</strong> をクリックして、Chrome Developer Tools を起動します。 <strong>Console</strong> タブを選択し、TypeScript アプリによって出力された <code>IDENTIFY</code> インテントのコンテンツが表示されることを確認します。</p>
+<aside class="special"><p><strong>Tip:</strong></p>
+<p>Google Homeデバイスは、スキャン中にネットワークを介して定期的に discovery パケットを送信します。アプリが検出されたデバイスのIDを確認するまで、各スキャン結果は <code>IDENTIFY</code> インテントをトリガーします。</p>
+</aside>
+<p class="image-container"><img style="width: 601.70px" src="img/774c460c59f9f84a.png"></p>
+<p>この出力は、<code>IDENTIFY</code> ハンドラーが正常にトリガーされたが、 <code>IdentifyReponse</code> で返された <code>verificationId</code> が HomeGraph 内のどのデバイスとも一致しないことを意味します。理由を調べるために、いくつかのカスタムログを追加しましょう。</p>
+<h2 is-upgraded>カスタムログを追加する</h2>
+<p>Local Home SDKによって出力された <code>DEVICE_VERIFICATION_FAILED</code> エラーがありますが、根本的な原因を見つけるのにあまり役立ちません。スキャンデータを正しく読み取って処理していることを確認するために、いくつかのカスタムログを追加しましょう。エラーでプロミスを拒否すると、エラーメッセージは実際には <a href="https://cloud.google.com/logging" target="_blank">Cloud Logging</a> にも送信されることに注意してください。</p>
+<h3 is-upgraded>local/index.ts</h3>
+<pre><code>identifyHandler(request: IntentFlow.IdentifyRequest):
+    Promise&lt;IntentFlow.IdentifyResponse&gt; {
+  console.log(&#34;IDENTIFY intent: &#34; + JSON.stringify(request, null, 2));
+
+  const scanData = request.inputs[0].payload.device.udpScanData;
+  if (!scanData) {
+    const err = new IntentFlow.HandlerError(request.requestId,
+        &#39;invalid_request&#39;, &#39;Invalid scan data&#39;);
+    return Promise.reject(err);
+  }
+
+  // In this codelab, the scan data contains only local device id.
+  // Is there something wrong here?
+  const localDeviceId = Buffer.from(scanData.data);
+  console.log(`IDENTIFY handler: received local device id 
+      ${localDeviceId}`);
+
+  // Add custom logs
+  if (!localDeviceId.toString().match(/^deviceid[0-9]{3}$/gi)) {
+    const err = new IntentFlow.HandlerError(request.requestId,  
+        &#39;invalid_device&#39;, &#39;Invalid device id from scan data &#39; + 
+        localDeviceId);
+    return Promise.reject(err);
+  }
+
+  const response: IntentFlow.IdentifyResponse = {
+    intent: Intents.IDENTIFY,
+    requestId: request.requestId,
+    payload: {
+      device: {
+        id: &#39;washer&#39;,
+        verificationId: localDeviceId.toString(),
+      }
+    }
+  };
+  console.log(&#34;IDENTIFY response: &#34; + JSON.stringify(response, null, 2));
+
+  return Promise.resolve(response);
+}</code></pre>
+<p>また、ローカルホームアプリのバージョンを変更して、正しいバージョンを使用しているかどうかを識別できるようにします。</p>
+<h3 is-upgraded>local/index.ts</h3>
+<pre><code>const localHomeSdk = new App(&#39;1.0.1&#39;);</code></pre>
+<p>カスタムログを追加した後、アプリを再度コンパイルしてFirebaseに再デプロイする必要があります。</p>
+<pre>$ cd ../app-faulty/local
+$ npm run build
+$ firebase deploy --only hosting</pre>
+<p>次に、Google Homeデバイスを再起動して、更新されたローカルホームアプリを読み込めるようにします。 メトリクスとロギングメトリクスとロギングChrome Developer Tools の <strong>Console</strong> ログを確認すると、Google Home デバイスが期待されるバージョンを使用しているかどうかを確認できます。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/1632c047835a387d.png"></p>
+<h2 is-upgraded>Cloud Logging にアクセスする</h2>
+<p><a href="https://cloud.google.com/logging" target="_blank">Cloud Logging</a> を使用してエラーを見つける方法を見てみましょう。プロジェクトの Cloud Logging にアクセスするには以下の手順を行います。</p>
+<ol type="1" start="1">
+<li>Cloud Platformコンソールで、 <strong>Project</strong> ページに移動します。</li>
+<li>スマートホームプロジェクトを選択します。</li>
+<li><strong>Operations</strong> で、 <strong>Logging &gt; Logs Explorer</strong> を選択します。</li>
+</ol>
+<p>ロギングデータへのアクセスは、アクションプロジェクトのユーザーのIdentity and Access Management（IAM）を介して管理されます。データをログに記録するための役割と権限の詳細については、Cloud Logging <a href="https://cloud.google.com/logging/docs/access-control" target="_blank">access control</a> を参照してください。</p>
+<aside class="special"><p>ローカルホームアプリを開発する場合、Chrome Dev Tools は不可欠ですが、デバイスを検査するにはプロジェクトのデベロッパーである必要があり、ネットワーク内のGoogle Homeデバイスのみを検査できます。一方、<a href="https://developers.google.com/assistant/smarthome/develop/monitoring-logging" target="_blank">Google Cloud Platform (GCP) Metrics and Logging</a> を使用すると、アクションを使用しているすべてのユーザーの指標とエラーを確認できます。スマートホームアクションの状態を監視するには、GCP Metrics and Logging を使用することをお勧めします。</p>
+</aside>
+<h3 is-upgraded>アドバンスドフィルタを使用する</h3>
+<p>ローカルデバイスの識別に失敗したためにローカルパスが機能していないため、 <code>IDENTIFY</code> インテントでエラーが発生していることがわかっています。ただし、問題が何であるかを正確に知りたいので、最初に <code>IDENTIFY</code> ハンドラーで発生するエラーを除外しましょう。</p>
+<p><strong>Query preview</strong> ボックスを展開すると、 <strong>Query builder</strong> ボックスに変わります。  <strong>Query builder</strong> ボックスに <code>jsonPayload.intent = 'IDENTIFY'</code> と入力し、 <strong>Run query</strong> ボタンをクリックします。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/5c242d9cb52b9c76.png"></p>
+<p>その結果、 <code>IDENTIFY</code> ハンドラーでスローされるすべてのエラーログを取得します。次に、最後のエラーを展開します。  <code>IDENTIFY</code> ハンドラーで promise を拒否するときに設定した <code>errorCode</code> と <code>debugString</code> があります。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/dc135b31f4ef2160.png"></p>
+<p><code>debugString</code> から、ローカルデバイスIDが予期された形式ではないことがわかります。ローカルホームアプリは、ローカルデバイスIDを <code>deviceid</code> で始まり3桁の数字が続く文字列として取得することを想定していますが、ここでのローカルデバイスIDは16進文字列です。</p>
+<h2 is-upgraded>エラーを修正する</h2>
+<p>スキャンデータからローカルデバイスIDを解析するソースコードに戻ると、文字列をバイトに変換するときにエンコードが提供されていないことがわかります。スキャンデータは16進文字列として受信されるため、 <code>Buffer.from()</code> を呼び出すときに文字エンコードとして <code>hex</code> を渡します。</p>
+<h3 is-upgraded>local/index.ts</h3>
+<pre><code>identifyHandler(request: IntentFlow.IdentifyRequest):
+    Promise&lt;IntentFlow.IdentifyResponse&gt; {
+  console.log(&#34;IDENTIFY intent: &#34; + JSON.stringify(request, null, 2));
+
+  const scanData = request.inputs[0].payload.device.udpScanData;
+  if (!scanData) {
+    const err = new IntentFlow.HandlerError(request.requestId,
+        &#39;invalid_request&#39;, &#39;Invalid scan data&#39;);
+    return Promise.reject(err);
+  }
+
+  // In this codelab, the scan data contains only local device id.
+  const localDeviceId = Buffer.from(scanData.data, &#39;hex&#39;);
+  console.log(`IDENTIFY handler: received local device id 
+      ${localDeviceId}`);
+
+  if (!localDeviceId.toString().match(/^deviceid[0-9]{3}$/gi)) {
+    const err = new IntentFlow.HandlerError(request.requestId,  
+      &#39;invalid_device&#39;, &#39;Invalid device id from scan data &#39; + 
+      localDeviceId);
+    return Promise.reject(err);
+  }
+
+  const response: IntentFlow.IdentifyResponse = {
+    intent: Intents.IDENTIFY,
+    requestId: request.requestId,
+    payload: {
+      device: {
+        id: &#39;washer&#39;,
+        verificationId: localDeviceId.toString(),
+      }
+    }
+  };
+  console.log(&#34;IDENTIFY response: &#34; + JSON.stringify(response, null, 2));
+
+  return Promise.resolve(response);
+}</code></pre>
+<p>また、ローカルホームアプリのバージョンを変更して、正しいバージョンを使用しているかどうかを識別できるようにします。</p>
+<h3 is-upgraded>local/index.ts</h3>
+<pre><code>const localHomeSdk = new App(&#39;1.0.2&#39;);</code></pre>
+<p>エラーを修正したら、アプリをコンパイルしてFirebaseに再デプロイします。 <code>app-faulty/local</code> で、次を実行します。</p>
+<pre>$ npm run build
+$ firebase deploy --only hosting</pre>
+<h2 is-upgraded>修正をテストする</h2>
+<p>デプロイ後、Google Homeデバイスを再起動して、更新されたローカルホームアプリを読み込めるようにします。ローカルホームアプリのバージョンが1.0.2であることを確認してください。今回は、Chrome DevTools Console にエラーが表示されないはずです。</p>
+<p class="image-container"><img style="width: 476.00px" src="img/4c9c6424c58fe47.png"></p>
+<p>これで、デバイスへのコマンドの送信を再試行できます。</p>
+<p>&#34;Hey Google, force local.&#34;</p>
+<p>&#34;Hey Google, stop my washer.&#34;</p>
+<p>&#34;Hey Google, turn on my washer.&#34;</p>
+<p>...</p>
+<p>&#34;Hey Google, force default.&#34;</p>
+<aside class="special"><p>それでもGoogleアシスタントが &#34;Sorry, it looks like the Washer isn&#39;t available right now&#34; と応答する場合は、スマートホームサーバーがローカルパスを取得するまでさらに数分お待ちください。</p>
+</aside>
+<aside class="warning"><p><strong>Important</strong>:</p>
+<p>テストが終了したら、 &#34;Hey Google, force default&#34; と言うのを忘れないでください。</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Test Suite for Smart Home を実行する" duration="0">
+        <p>Google Homeアプリのタッチコントロールまたは音声コマンドを使用してデバイスを確認した後、 <a href="https://developers.google.com/assistant/smarthome/tools/smart-home-test-suite" target="_blank">Test Suite for smart home</a> を使用して、アクションに関連付けられたデバイスタイプとトレイトに基づいてユースケースを検証できます。 Test Suiteは、一連のテストを実行してアクションの問題を検出し、失敗したテストケースに関する有益なメッセージを表示して、イベントログに飛び込む前にデバッグを迅速化します。</p>
+<h2 is-upgraded>Test Suite for smart homeを実行する</h2>
+<p>テストスイートによるスマートホームアクションをテストするには、次の手順に従います。</p>
+<ol type="1" start="1">
+<li>Webブラウザーで、 <a href="https://developers.google.com/assistant/smarthome/tools/smart-home-test-suite" target="_blank">Test Suite for smart home</a> を開きます。</li>
+<li>右上隅のボタンを使用してGoogleにログインします。これにより、Test SuiteはコマンドをGoogleアシスタントに直接送信できます。</li>
+<li><strong>Project ID</strong> フィールドに、スマートホームアクションのプロジェクトIDを入力します。 <strong>Next</strong> をクリックして続行します。</li>
+<li><strong>Test settings</strong> ステップで、 <strong>Devices and Traits</strong> セクションに Faulty Washer が表示されます。</li>
+<li>サンプルのウォッシャーアプリにはウォッシャーを追加/削除/名前変更するためのUIがないため、 <strong>Test Request Sync</strong> オプションを無効にします。本番システムでは、ユーザーがデバイスを追加/削除/名前変更するたびに、 <a href="https://developers.google.com/assistant/smarthome/develop/request-sync" target="_blank">Request Sync</a> をトリガーする必要があります。</li>
+<li>ローカルパスとクラウドパスの両方をテストするため、 <strong>Local Home SDK</strong> オプションは有効のままにしておきます。</li>
+<li><strong>Next</strong> をクリックして、テストの実行を開始します。</li>
+</ol>
+<p class="image-container"><img style="width: 601.70px" src="img/67433d9190fa770e.png"></p>
+<p>テストが完了すると、ローカルパスの一時停止/再開テストが失敗し、クラウドパスの一時停止/再開テストに合格していることがわかります。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/d1ebd5cfae2a2a47.png"></p>
+<h2 is-upgraded>エラーメッセージを分析する</h2>
+<p>失敗したテストケースのエラーメッセージを詳しく見てみましょう。それらは、そのテストの予想される状態と実際の状態を教えてくれます。この場合、 &#34;Pause the Washer&#34; に対して期待される状態は <code>isPaused:true</code> ですが、実際の状態では <code>isPaused:false</code> になります。同様に、 &#34;Pause the Washer&#34; の場合、期待される状態は <code>isPaused:true</code> ですが、実際の状態では <code>isPaused:false</code> になります。</p>
+<p class="image-container"><img style="width: 601.70px" src="img/6bfd3acef9c16b84.png"></p>
+<p>エラーメッセージから、ローカルパスのように見えます。 <code>isPaused</code> 状態を逆に設定しています。</p>
+<h2 is-upgraded>エラーを特定し修正する</h2>
+<p>ローカルホームアプリが実行コマンドをデバイスに送信するソースコードを見つけましょう。  <code>getDataCommand()</code> は、 <code>executeHandler()</code> によって呼び出される関数であり、デバイスに送信される実行コマンドの <code>payload</code> を設定します。</p>
+<h3 is-upgraded>local/index.ts</h3>
+<pre><code>getDataForCommand(command: string, params: IWasherParams): unknown {
+    switch (command) {
+        case &#39;action.devices.commands.OnOff&#39;:
+            return {
+                on: params.on ? true : false
+            };
+        case &#39;action.devices.commands.StartStop&#39;:
+            return {
+                isRunning: params.start ? true : false
+            };
+        case &#39;action.devices.commands.PauseUnpause&#39;:
+            return {
+                // Is there something wrong here?
+                isPaused: params.pause ? false : true
+            };
+        default:
+            console.error(&#39;Unknown command&#39;, command);
+            return {};
+    }
+}</code></pre>
+<p>実際、 <code>isPause</code> を逆の状態に設定しています。 <code>params.pause</code> が <code>true</code> の場合は <code>true</code> に設定し、それ以外の場合は <code>false</code> に設定する必要があります。だから、それを修正しましょう。</p>
+<h3 is-upgraded>local/index.ts</h3>
+<pre><code>getDataForCommand(command: string, params: IWasherParams): unknown {
+    switch (command) {
+        case &#39;action.devices.commands.OnOff&#39;:
+            return {
+                on: params.on ? true : false
+            };
+        case &#39;action.devices.commands.StartStop&#39;:
+            return {
+                isRunning: params.start ? true : false
+            };
+        case &#39;action.devices.commands.PauseUnpause&#39;:
+            return {
+                isPaused: params.pause ? true : false
+            };
+        default:
+            console.error(&#39;Unknown command&#39;, command);
+            return {};
+    }
+}</code></pre>
+<p>ローカルホームアプリのバージョンを変更して、正しいバージョンを使用しているかどうかを識別できるようにします。</p>
+<h3 is-upgraded>local/index.ts</h3>
+<pre><code>const localHomeSdk = new App(&#39;1.0.3&#39;);</code></pre>
+<p>アプリを再度コンパイルして、Firebaseに再デプロイすることを忘れないでください。 <code>app-faulty/local</code> で、次を実行します。</p>
+<pre>$ npm run build
+$ firebase deploy --only hosting</pre>
+<p>次に、Google Homeデバイスを再起動して、更新されたローカルホームアプリを読み込めるようにします。ローカルホームアプリのバージョンが1.0.3であることを確認してください。</p>
+<h2 is-upgraded>修正をテストする</h2>
+<p>ここで、同じ構成でスマートホームのテストスイートを再実行すると、すべてのテストケースに合格していることがわかります。</p>
+<aside class="special"><p>テストスイートを再度実行する前に、仮想スマートウォッシャーを再起動して状態をリセットします。</p>
+</aside>
+<p class="image-container"><img style="width: 501.00px" src="img/b7fc8c5d3c727d8d.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="おめでとうございます" duration="0">
+        <p class="image-container"><img style="width: 601.70px" src="img/dce4a1a50a4aa785.png"></p>
+<p>おめでとう！Test Suite for smart home と Cloud Logging を介して、ローカルホームアプリのトラブルシューティング方法を正常に学習しました。</p>
+<h2 is-upgraded>もっと学ぶ</h2>
+<p>ここに、あなたが挑戦することができるいくつかの追加のリソースがあります。</p>
+<ul>
+<li>デバイスにもっと <a href="https://developers.google.com/actions/smarthome/traits/" target="_blank">supported traits</a> を追加して、Test Suite を使ってそれらをテストします。</li>
+<li>各インテントハンドラーにカスタムログを追加し、クラウドログで表示します。</li>
+<li><a href="https://cloud.google.com/monitoring/charts" target="_blank">dashboards</a> を作成して、 <a href="https://cloud.google.com/monitoring/alerts" target="_blank">alerts</a> をセットアップし、アクションについて有益な使用メトリクスを得るために、 <a href="https://cloud.google.com/monitoring/api/v3" target="_blank">access metrics data programmatically</a> にアクセスします。</li>
+</ul>
+<p>また、アクションをユーザーに公開するための認証プロセスなど、レビューのためにアクションを <a href="https://developers.google.com/actions/smarthome/develop/testing-submitting" target="_blank">テストして提出する</a> 方法についても学ぶことができます。</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
