@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-790299-29",
+  "updated": "2021-06-17T06:44:36Z",
+  "id": "localhome-debugging_ja",
+  "duration": 0,
+  "title": "Debugging the Local Home",
+  "authors": "yoichiro",
+  "summary": "This codelab covers how to debug the Local Home App.",
+  "source": "1iNmxJflzbD58Gj9c2RTxG6KEfCnlAcoH9bYBhOB3SFg",
+  "theme": "assistant",
+  "status": [
+    "live"
+  ],
+  "category": [
+    "Assistant"
+  ],
+  "tags": [
+    "lang-ja",
+    "tag-assistant",
+    "web"
+  ],
+  "url": "localhome-debugging_ja"
+}

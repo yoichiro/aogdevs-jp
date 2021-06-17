@@ -2,7 +2,7 @@ name: Deploy to Firebase
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   deploy:
     name: Deploy
@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@master
         with:
-          ref: master
+          ref: main
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
